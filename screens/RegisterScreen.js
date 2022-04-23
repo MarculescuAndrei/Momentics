@@ -9,11 +9,12 @@ import {
   Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { useNavigation } from "@react-navigation/native";
 
 const RegisterScreen = () => {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [passwordVerifier, setPasswordVerifier] = useState("");
   const [warningText, setWarningText] = useState(false);
@@ -23,12 +24,17 @@ const RegisterScreen = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
+        console.log("aici");
         navigation.navigate("HomeScreen");
       }
     });
 
     return unsubscribe;
   }, []);
+
+  const handleBack = () => {
+    navigation.navigate("LoginScreen");
+  };
 
   // When we leave the screen the unsubscribe will close the listener so it does not ping it.
 
@@ -44,6 +50,10 @@ const RegisterScreen = () => {
           const user = userCredentials.user;
           console.log(user.email);
           clearTimeout(timer);
+          var uid = auth.currentUser.uid;
+          db.ref("users/" + uid + "/name").push({
+            name: name,
+          });
         })
         .catch((error) => alert(error.message));
     } else {
@@ -57,6 +67,12 @@ const RegisterScreen = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={styles.inputContainer}>
+        <TextInput
+          placeholder="Name"
+          value={name}
+          onChangeText={(text) => setName(text)}
+          style={styles.input}
+        />
         <TextInput
           placeholder="Email"
           value={email}
@@ -94,6 +110,12 @@ const RegisterScreen = () => {
           <Text style={styles.buttonOutlineText}>Register</Text>
         </TouchableOpacity>
       </View>
+
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity onPress={handleBack} style={styles.button}>
+          <Text style={styles.buttonText}>Back to Login</Text>
+        </TouchableOpacity>
+      </View>
     </KeyboardAvoidingView>
   );
 };
@@ -102,13 +124,15 @@ export default RegisterScreen;
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "#666666",
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
 
   inputContainer: {
-    width: "80%",
+    width: "70%",
+    margin: 7,
   },
 
   wrongPass: {
@@ -117,22 +141,27 @@ const styles = StyleSheet.create({
   },
 
   input: {
+    elevation: 4,
     backgroundColor: "white",
     paddingHorizontal: 15,
     paddingVertical: 10,
-    borderRadius: 10,
-    marginTop: 5,
+    borderRadius: 6.5,
+    borderBottomColor: "#121212",
+    borderBottomWidth: 4,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
+    margin: 6,
   },
 
   buttonContainer: {
     width: "60%",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 40,
+    marginTop: 15,
   },
 
   button: {
-    backgroundColor: "#03b1fc",
+    backgroundColor: "#1f1f1f",
     width: "100%",
     padding: 15,
     borderRadius: 10,
@@ -146,14 +175,14 @@ const styles = StyleSheet.create({
   },
 
   buttonOutline: {
-    backgroundColor: "white",
+    backgroundColor: "#1f1f1f",
     marginTop: 5,
-    borderColor: "#03b1fc",
-    borderWidth: 2,
+    borderColor: "white",
+    borderWidth: 1,
   },
 
   buttonOutlineText: {
-    color: "#03b1fc",
+    color: "white",
     fontWeight: "700",
     fontSize: 16,
   },

@@ -12,7 +12,11 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  useNavigation,
+  useIsFocused,
+} from "@react-navigation/native";
 import NoteComponent from "../components/NoteComponent";
 import { Entypo } from "@expo/vector-icons";
 
@@ -20,6 +24,8 @@ const NotesScreen = () => {
   const [note_prototype, setNotePrototype] = useState("");
   const navigation = useNavigation();
   const [notes, setNotes] = useState([]);
+  const isFocused = useIsFocused();
+  const [dataState, setDataState] = useState();
 
   //write
   const writeToDb = () => {
@@ -60,11 +66,13 @@ const NotesScreen = () => {
           });
         });
         setNotes(notes_list);
+        setDataState(true);
       } else {
         console.log("Data Snapshot is null");
+        setDataState(false);
       }
     });
-  }, []);
+  }, [isFocused]);
 
   const handleAddNote = () => {
     navigation.navigate("AddNoteScreen");
@@ -92,23 +100,24 @@ const NotesScreen = () => {
             <NoteComponent time={item.time.slice(0, 14)} note={item.note} />
           );
         })} */}
-
-        <FlatList
-          ListFooterComponent={<View style={{ height: 150 }} />}
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          numColumns={2}
-          keyExtractor={(item) => item.time}
-          data={notes}
-          renderItem={({ item }) => (
-            <NoteComponent
-              pushkey={item.key}
-              time={item.time.slice(0, 14)}
-              note={item.note}
-              title={item.title}
-            />
-          )}
-        />
+        {dataState && (
+          <FlatList
+            ListFooterComponent={<View style={{ height: 150 }} />}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            numColumns={2}
+            keyExtractor={(item) => item.time}
+            data={notes}
+            renderItem={({ item }) => (
+              <NoteComponent
+                pushkey={item.key}
+                time={item.time.slice(0, 14)}
+                note={item.note}
+                title={item.title}
+              />
+            )}
+          />
+        )}
       </View>
     </View>
   );
@@ -128,8 +137,9 @@ const styles = StyleSheet.create({
   },
 
   plus_button: {
+    elevation: 3,
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.2)",
+    borderColor: "rgba(0,0,0,0.35)",
     alignItems: "center",
     justifyContent: "center",
     width: 70,
@@ -137,7 +147,7 @@ const styles = StyleSheet.create({
     bottom: 30,
     right: 20,
     height: 70,
-    backgroundColor: "#d4d4d4",
+    backgroundColor: "white",
     borderRadius: 20,
     zIndex: 3,
   },

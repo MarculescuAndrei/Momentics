@@ -5,22 +5,62 @@ import {
   StyleSheet,
   TextInput,
 } from "react-native";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
+
 import { Entypo } from "@expo/vector-icons";
 import { auth, db } from "../firebase";
 import React, { useEffect, useState, useRef } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import { addValidStylePropTypes } from "react-native/Libraries/StyleSheet/StyleSheetValidation";
+import {
+  NavigationContainer,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
+import { styleProps } from "react-native-web/dist/cjs/modules/forwardedProps";
 
-const AddToDoScreen = () => {
-  const [task, setTask] = useState("");
-  const [details, setDetails] = useState("");
-  const [importance, setImportance] = useState("");
-  const [date, setDate] = useState(new Date());
-  const [dueDate, setDueDate] = useState("");
+const EditToDo = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
+
+  const uid = auth.currentUser.uid;
+  const todo_obj = db.ref("users/" + uid + "/todos/" + route.params.key);
+
   const [showDate, setShowDate] = useState(false);
-  const [showDateText, setShowDateText] = useState(false);
+  const [showDateText, setShowDateText] = useState(true);
+  const [date, setDate] = useState(new Date());
+  const [todoTask, setTodoTask] = useState(route.params.task);
+  const [todoDetails, setTodoDetails] = useState(route.params.details);
+  const [todoDueDate, setTodoDueDate] = useState(route.params.dueDate);
+  const [todoImportance, setTodoImportance] = useState(route.params.importance);
+
+  const updateTask = (text) => {
+    todo_obj.update({
+      task: text,
+    });
+    setTodoTask(text);
+  };
+
+  const updateDetails = (text) => {
+    todo_obj.update({
+      details: text,
+    });
+    setTodoDetails(text);
+  };
+
+  const updateImportance = (text) => {
+    todo_obj.update({
+      importance: text,
+    });
+    setTodoImportance(text);
+  };
+
+  const updateDueDate = (text) => {
+    todo_obj.update({
+      dueDate: text,
+    });
+    setTodoDueDate(text);
+  };
 
   const onChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate || dueDate;
@@ -33,46 +73,24 @@ const AddToDoScreen = () => {
       (tempDate.getMonth() + 1) +
       " / " +
       tempDate.getFullYear();
-    setDueDate(fdate);
+
+    setTodoDueDate(fdate);
+    updateDueDate(fdate);
   };
 
   const showDatePicker = () => {
     setShowDate(true);
   };
 
-  const navigation = useNavigation();
-
   //write
-  const writeToDb = () => {
-    const uid = auth.currentUser.uid;
-    var date = new Date();
-    var now =
-      date.getDate() +
-      " - " +
-      (date.getMonth() + 1) +
-      " - " +
-      date.getFullYear() +
-      "  " +
-      date.getHours() +
-      " " +
-      date.getSeconds();
-    db.ref("users/" + uid + "/todos").push({
-      task: task,
-      details: details,
-      importance: importance,
-      dueDate: dueDate,
-      time: now,
-      isDone: "false",
-    });
-    navigation.goBack();
-  };
 
   return (
     <View style={styles.container}>
       <View style={styles.inputContainer}>
         <TextInput
+          value={todoTask}
           placeholder="Task"
-          onChangeText={(text) => setTask(text)}
+          onChangeText={(text) => updateTask(text)}
           style={styles.input}
         />
       </View>
@@ -81,8 +99,8 @@ const AddToDoScreen = () => {
         <Picker
           placeholder="Choose Importance"
           style={styles.picker}
-          selectedValue={importance}
-          onValueChange={(itemValue, itemIndex) => setImportance(itemValue)}
+          selectedValue={todoImportance}
+          onValueChange={(itemValue, itemIndex) => updateImportance(itemValue)}
         >
           <Picker.Item value="" label="Choose  importance.." />
           <Picker.Item label="Critical" value="Critical" />
@@ -93,10 +111,11 @@ const AddToDoScreen = () => {
 
       <View style={styles.inputContainer}>
         <TextInput
+          value={todoDetails}
           height={100}
           multiline={true}
           placeholder="Details"
-          onChangeText={(text) => setDetails(text)}
+          onChangeText={(text) => updateDetails(text)}
           style={styles.input}
         />
       </View>
@@ -111,24 +130,27 @@ const AddToDoScreen = () => {
         />
       )}
 
-      <TouchableOpacity style={styles.button} onPress={showDatePicker}>
-        <Text style={styles.buttonText}>
-          {showDateText ? dueDate : "Choose a due date"}
-        </Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={showDatePicker}>
+          <Text style={styles.buttonText}>
+            {showDateText ? todoDueDate : "Choose a due date"}
+          </Text>
+        </TouchableOpacity>
 
-      {/* <View style={styles.date_input}>
-        <Text>{dueDate}</Text>
-      </View> */}
-
-      <TouchableOpacity style={styles.button} onPress={writeToDb}>
-        <Text style={styles.buttonText}>Add this ToDo</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <Text style={styles.buttonText}>Finish editing</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
-export default AddToDoScreen;
+export default EditToDo;
 
 const styles = StyleSheet.create({
   container: {
@@ -159,15 +181,21 @@ const styles = StyleSheet.create({
     width: "80%",
     backgroundColor: "white",
     height: 50,
-    borderRadius: 6.5,
+    borderRadius: 10,
     margin: 15,
     borderBottomWidth: 4,
     borderBottomColor: "#121212",
     elevation: 4,
   },
 
+  buttonContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 40,
+    width: "95%",
+  },
+
   button: {
-    elevation: 4,
     backgroundColor: "#1f1f1f",
     width: "60%",
     padding: 15,

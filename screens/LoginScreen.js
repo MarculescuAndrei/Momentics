@@ -6,6 +6,8 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Image,
+  ImageBackground,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { auth } from "../firebase";
@@ -15,7 +17,7 @@ const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigation = useNavigation();
-
+  const image = { uri: "https://i.imgur.com/qDWMTWA.png" };
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
@@ -53,38 +55,48 @@ const LoginScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="Password"
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-          style={styles.input}
-          secureTextEntry
-        />
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={handleLogin} style={styles.button}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
+    <ImageBackground source={image} style={styles.container}>
+      <KeyboardAvoidingView
+        keyboardVerticalOffset={-500}
+        style={styles.containerView}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View>
+          <Image
+            source={require("../assets/Logo.png")}
+            style={{ width: 350, height: 100, marginBottom: 100 }}
+          />
+        </View>
 
-        <TouchableOpacity
-          onPress={handleSignUp}
-          style={[styles.button, styles.buttonOutline]}
-        >
-          <Text style={styles.buttonOutlineText}>Register</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+        <View style={styles.inputContainer}>
+          <TextInput
+            placeholder="Email"
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Password"
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            style={styles.input}
+            secureTextEntry
+          />
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity onPress={handleLogin} style={styles.button}>
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleSignUp}
+            style={[styles.button, styles.buttonOutline]}
+          >
+            <Text style={styles.buttonOutlineText}>Register</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 };
 
@@ -95,6 +107,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    //backgroundColor: "#666666",
+  },
+
+  containerView: {
+    width: "75%",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    //backgroundColor: "#666666",
   },
 
   inputContainer: {
@@ -102,11 +123,16 @@ const styles = StyleSheet.create({
   },
 
   input: {
+    elevation: 4,
     backgroundColor: "white",
     paddingHorizontal: 15,
     paddingVertical: 10,
-    borderRadius: 10,
-    marginTop: 5,
+    borderRadius: 6.5,
+    borderBottomColor: "#121212",
+    borderBottomWidth: 4,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
+    margin: 7,
   },
 
   buttonContainer: {
@@ -117,7 +143,7 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    backgroundColor: "#03b1fc",
+    backgroundColor: "#1f1f1f",
     width: "100%",
     padding: 15,
     borderRadius: 10,
@@ -131,14 +157,14 @@ const styles = StyleSheet.create({
   },
 
   buttonOutline: {
-    backgroundColor: "white",
+    backgroundColor: "#1f1f1f",
     marginTop: 5,
-    borderColor: "#03b1fc",
-    borderWidth: 2,
+    borderColor: "white",
+    borderWidth: 1,
   },
 
   buttonOutlineText: {
-    color: "#03b1fc",
+    color: "white",
     fontWeight: "700",
     fontSize: 16,
   },

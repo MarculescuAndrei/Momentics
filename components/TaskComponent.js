@@ -1,31 +1,39 @@
 import { View, Text, StyleSheet, Alert } from "react-native";
 import React from "react";
 import { MaterialIcons } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { TouchableOpacity } from "react-native"; //sometimes touch opac needs to be imported from react-native not gestures
 import { auth, db } from "../firebase";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import EditNote from "../editScreens/EditNoteScreen";
 import { useEffect } from "react/cjs/react.production.min";
-const NoteComponent = ({ pushkey, time, note, title }) => {
-  const navigation = useNavigation();
 
-  const handleEditPress = () => {
-    navigation.navigate("EditNoteScreen", {
-      title: title,
-      note: note,
-      key: pushkey,
+const TaskComponent = ({ pushkey, task_title, days, time }) => {
+  const navigation = useNavigation();
+  // const handleEditPress = () => {
+  //   navigation.navigate("EditTaskScreen", {
+  //     title: title,
+  //     note: note,
+  //     key: pushkey,
+  //   });
+  // };
+
+  function daysMaker(days) {
+    var days_string = "";
+    days.forEach((day) => {
+      days_string = days_string + " " + day;
     });
-  };
+    return days_string;
+  }
 
   const handleDelete = () => {
     const uid = auth.currentUser.uid;
-    var all_notes = db.ref("users/" + uid + "/notes");
-    all_notes.child(pushkey).remove();
+    var all_tasks = db.ref("users/" + uid + "/tasks");
+    all_tasks.child(pushkey).remove();
   };
 
   const handleAlert = () => {
     return Alert.alert(
-      "Are your sure you want to delete this Note?",
+      "Are your sure you want to delete this Task?",
       "It'll be gone forever..",
       [
         // The "Yes" button
@@ -44,48 +52,57 @@ const NoteComponent = ({ pushkey, time, note, title }) => {
     );
   };
 
+  const handleEdit = () => {
+    navigation.navigate("EditTaskScreen", {
+      task: task_title,
+      key: pushkey,
+      days: days,
+    });
+  };
+
   return (
-    <TouchableOpacity
-      key={time}
-      style={styles.container}
-      onPress={handleEditPress}
-    >
+    <TouchableOpacity key={time} style={styles.container} onPress={handleEdit}>
       <View style={styles.title}>
         <Text style={styles.texttitle}>
-          {title.length > 15 ? title.slice(0, 15) + ".." : title}
+          {task_title}
+          {/* {task_title.length > 15 ? task_title.slice(0, 15) + ".." : task_title} */}
         </Text>
       </View>
 
       <View style={styles.content}>
-        <Text numberOfLines={4}>{note}</Text>
-      </View>
-
-      <View style={styles.date}>
-        <Text style={styles.textdate}>{time}</Text>
+        <Text style={styles.content_text}>{daysMaker(days)}</Text>
       </View>
 
       <View style={styles.deletebutton}>
         <TouchableOpacity onPress={handleAlert}>
-          <MaterialIcons name="delete" size={22} color="black" />
+          <MaterialIcons name="delete" size={20} color="black" />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
 };
 
-export default NoteComponent;
+export default TaskComponent;
 
 const styles = StyleSheet.create({
   title: {
-    padding: 15,
+    padding: 10,
     left: 5,
     justifyContent: "flex-start",
     position: "absolute",
   },
 
   content: {
-    paddingTop: 15,
+    position: "absolute",
+    left: 12,
+    bottom: 7,
+    paddingTop: 7,
     alignItems: "flex-start",
+  },
+
+  content_text: {
+    fontSize: 12,
+    color: "#6b6b6b",
   },
 
   date: {
@@ -108,15 +125,15 @@ const styles = StyleSheet.create({
   deletebutton: {
     position: "absolute",
     zIndex: 400,
-    width: 100,
+    width: 40,
     height: 100,
-    top: 115,
-    left: 9,
+    top: 17,
+    left: 270,
   },
 
   container: {
-    width: 150,
-    height: 150,
+    width: 300,
+    height: 60,
     borderRadius: 6.7,
     margin: 10,
     padding: 20,
@@ -127,6 +144,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#ededed",
     elevation: 4,
     borderBottomWidth: 6,
-    borderColor: "#e8b02e",
+    borderColor: "#4f81ff",
   },
 });

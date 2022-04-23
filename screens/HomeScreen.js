@@ -12,13 +12,19 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  useIsFocused,
+  useNavigation,
+} from "@react-navigation/native";
 
 const HomeScreen = () => {
   const [note_prototype, setNotePrototype] = useState("");
   const navigation = useNavigation();
   const [notes, setNotes] = useState([]);
-
+  const [name, setName] = useState("");
+  const [dataState, setDataState] = useState();
+  const isFocused = useIsFocused();
   //disable back button
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -28,20 +34,26 @@ const HomeScreen = () => {
     return () => backHandler.remove();
   }, []);
 
-  // sign out function
-
-  const switchToProfile = () => {
-    navigation.navigate("ProfileScreen");
-  };
+  //read name function, triggers everytime the screen is in Focus
+  useEffect(() => {
+    db.ref("users/" + auth.currentUser.uid + "/name").once(
+      "value",
+      (snapshot) => {
+        if (snapshot.exists()) {
+          snapshot.forEach((name_obj) => {
+            setName(name_obj.val().name);
+          });
+        } else {
+          setDataState(false);
+          console.log("Data Snapshot is null");
+        }
+      }
+    );
+  }, [isFocused]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* <MaterialCommunityIcons
-        name="face-profile"
-        size={24}
-        color="black"
-        onPress={switchToProfile}
-      /> */}
+      <Text>Welcome, {name}</Text>
     </ScrollView>
   );
 };
@@ -52,9 +64,10 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     padding: 20,
-    justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#666666",
   },
 
   note_item: {

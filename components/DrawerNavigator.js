@@ -33,7 +33,7 @@ const DrawerNavigator = () => {
       <MaterialCommunityIcons
         name="face-profile"
         size={24}
-        color="#cccccc"
+        color="#e6e6e6"
         onPress={switchToProfile}
         style={{ paddingRight: 20 }}
       />

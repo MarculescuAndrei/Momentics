@@ -20,18 +20,14 @@ import {
 import NoteComponent from "../components/NoteComponent";
 import { Entypo } from "@expo/vector-icons";
 import ToDoComponent from "../components/ToDoComponent";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-const ToDoScreen = () => {
+
+const DoneToDoScreen = () => {
   const [toDos, setToDos] = useState([]);
   const navigation = useNavigation();
   const [name, setName] = useState("");
 
   const handleAddToDo = () => {
     navigation.navigate("AddToDoScreen");
-  };
-
-  const handleSeeDoneTodos = () => {
-    navigation.navigate("DoneTodosScreen");
   };
 
   const isFocused = useIsFocused();
@@ -45,7 +41,7 @@ const ToDoScreen = () => {
       if (snapshot.exists()) {
         const todos_list = [];
         snapshot.forEach((todo_obj) => {
-          if (todo_obj.val().isDone == "false") {
+          if (todo_obj.val().isDone == "true") {
             todos_list.push({
               key: todo_obj.key,
               task: todo_obj.val().task,
@@ -68,21 +64,6 @@ const ToDoScreen = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.check_button}
-        onPress={handleSeeDoneTodos}
-      >
-        <MaterialCommunityIcons
-          name="clipboard-check-outline"
-          size={37}
-          color="black"
-        />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.plus_button} onPress={handleAddToDo}>
-        <Entypo name="plus" size={44} color="black" />
-      </TouchableOpacity>
-
       <View>
         {dataState && (
           <FlatList
@@ -111,7 +92,7 @@ const ToDoScreen = () => {
   );
 };
 
-export default ToDoScreen;
+export default DoneToDoScreen;
 
 const styles = StyleSheet.create({
   container: {

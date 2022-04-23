@@ -19,46 +19,34 @@ import {
 } from "@react-navigation/native";
 import NoteComponent from "../components/NoteComponent";
 import { Entypo } from "@expo/vector-icons";
-import ToDoComponent from "../components/ToDoComponent";
+import { Feather } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-const ToDoScreen = () => {
-  const [toDos, setToDos] = useState([]);
+import TaskComponent from "../components/TaskComponent";
+const TasksScreen = () => {
+  const [tasks, setTasks] = useState([]);
   const navigation = useNavigation();
-  const [name, setName] = useState("");
-
-  const handleAddToDo = () => {
-    navigation.navigate("AddToDoScreen");
-  };
-
-  const handleSeeDoneTodos = () => {
-    navigation.navigate("DoneTodosScreen");
-  };
-
   const isFocused = useIsFocused();
   const [dataState, setDataState] = useState();
 
+  //read
   useEffect(() => {
     const uid = auth.currentUser.uid;
-    var all_todos = db.ref("users/" + uid + "/todos");
+    var all_tasks = db.ref("users/" + uid + "/tasks");
 
-    all_todos.on("value", (snapshot) => {
+    all_tasks.on("value", (snapshot) => {
       if (snapshot.exists()) {
-        const todos_list = [];
-        snapshot.forEach((todo_obj) => {
-          if (todo_obj.val().isDone == "false") {
-            todos_list.push({
-              key: todo_obj.key,
-              task: todo_obj.val().task,
-              details: todo_obj.val().details,
-              importance: todo_obj.val().importance,
-              dueDate: todo_obj.val().dueDate,
-              time: todo_obj.val().time,
-              isDone: todo_obj.val().isDone,
-            });
-          }
+        const tasks_list = [];
+        snapshot.forEach((task_obj) => {
+          tasks_list.push({
+            key: task_obj.key,
+            task_title: task_obj.val().task,
+            days: task_obj.val().days,
+            time: task_obj.val().time,
+            isDoneForToday: task_obj.val().isDoneForToday,
+          });
         });
         setDataState(true);
-        setToDos(todos_list);
+        setTasks(tasks_list);
       } else {
         setDataState(false);
         console.log("Data Snapshot is null");
@@ -68,21 +56,6 @@ const ToDoScreen = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.check_button}
-        onPress={handleSeeDoneTodos}
-      >
-        <MaterialCommunityIcons
-          name="clipboard-check-outline"
-          size={37}
-          color="black"
-        />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.plus_button} onPress={handleAddToDo}>
-        <Entypo name="plus" size={44} color="black" />
-      </TouchableOpacity>
-
       <View>
         {dataState && (
           <FlatList
@@ -92,16 +65,13 @@ const ToDoScreen = () => {
             showsHorizontalScrollIndicator={false}
             numColumns={1}
             keyExtractor={(item) => item.time}
-            data={toDos}
+            data={tasks}
             renderItem={({ item }) => (
-              <ToDoComponent
+              <TaskComponent
                 pushkey={item.key}
-                details={item.details}
-                task={item.task}
-                importance={item.importance}
-                dueDate={item.dueDate}
-                time={item.time.slice(0, 14)}
-                isDone={item.isDone}
+                task_title={item.task_title}
+                days={item.days}
+                time={item.time}
               />
             )}
           />
@@ -111,7 +81,7 @@ const ToDoScreen = () => {
   );
 };
 
-export default ToDoScreen;
+export default TasksScreen;
 
 const styles = StyleSheet.create({
   container: {

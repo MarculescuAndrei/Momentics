@@ -14,12 +14,24 @@ import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import NoteComponent from "../components/NoteComponent";
+import { MaterialIcons } from "@expo/vector-icons";
+import SelectBox from "react-native-multi-selectbox";
+import { xorBy } from "lodash";
 
-const AddNoteScreen = () => {
-  const [noteText, setNoteText] = useState("");
-  const [noteTitle, setNoteTitle] = useState("");
+const AddTask = () => {
+  const [taskTitle, setTaskTitle] = useState("");
+  const [taskDays, setTaskDays] = useState([]);
+  const [selectedDays, setSelectedDays] = useState([]);
+  const days = [
+    { item: "Monday", id: 1 },
+    { item: "Tuesday", id: 2 },
+    { item: "Wednesday", id: 3 },
+    { item: "Thursday", id: 4 },
+    { item: "Friday ", id: 5 },
+    { item: "Saturday", id: 6 },
+    { item: "Sunday", id: 7 },
+  ];
   const navigation = useNavigation();
-  const [notes, setNotes] = useState([]);
 
   //write
   const writeToDb = () => {
@@ -35,42 +47,59 @@ const AddNoteScreen = () => {
       date.getHours() +
       " " +
       date.getSeconds();
-    db.ref("users/" + uid + "/notes").push({
-      note: noteText,
-      title: noteTitle,
+
+    var task_days = [];
+    selectedDays.forEach((day_obj) => {
+      task_days.push(day_obj.item);
+    });
+
+    db.ref("users/" + uid + "/tasks").push({
+      task: taskTitle,
+      days: task_days,
+      isDoneForToday: false,
       time: now,
     });
     navigation.goBack();
   };
 
+  function onMultiChange() {
+    return (item) => setSelectedDays(xorBy(selectedDays, [item], "id"));
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.inputContainer}>
         <TextInput
-          placeholder="Title"
-          onChangeText={(text) => setNoteTitle(text)}
+          placeholder="Task"
+          onChangeText={(text) => setTaskTitle(text)}
           style={styles.input}
         />
       </View>
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          height={200}
-          multiline={true}
-          placeholder="Note"
-          onChangeText={(text) => setNoteText(text)}
-          style={styles.input}
+      <View style={styles.pickerview}>
+        <SelectBox
+          multiOptionContainerStyle={{ backgroundColor: "#141414" }}
+          multiOptionsLabelStyle={{ backgroundColor: "#141414" }}
+          arrowIconColor={"#141414"}
+          searchIconColor={"#141414"}
+          toggleIconColor={"#141414"}
+          label="Select Days"
+          options={days}
+          selectedValues={selectedDays}
+          onMultiSelect={onMultiChange()}
+          onTapClose={onMultiChange()}
+          isMulti
         />
       </View>
 
       <TouchableOpacity style={styles.button} onPress={writeToDb}>
-        <Text style={styles.buttonText}>Add this note</Text>
+        <Text style={styles.buttonText}>Add this Task</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-export default AddNoteScreen;
+export default AddTask;
 
 const styles = StyleSheet.create({
   container: {
@@ -89,6 +118,17 @@ const styles = StyleSheet.create({
     marginTop: 12,
     backgroundColor: "#E6E6E6",
     borderRadius: 10,
+  },
+
+  pickerview: {
+    borderRadius: 6.5,
+    padding: 12,
+    marginTop: 30,
+    backgroundColor: "white",
+    width: "80%",
+    borderBottomWidth: 4,
+    borderBottomColor: "#121212",
+    elevation: 4,
   },
 
   button: {
@@ -110,12 +150,13 @@ const styles = StyleSheet.create({
     color: "black",
     textAlignVertical: "top",
     backgroundColor: "white",
-    borderBottomWidth: 4,
-    borderBottomColor: "#121212",
     paddingHorizontal: 15,
     paddingVertical: 15,
     borderRadius: 6.5,
     marginTop: 5,
+    borderBottomWidth: 4,
+    borderBottomColor: "#121212",
+    elevation: 4,
   },
 
   inputContainer: {

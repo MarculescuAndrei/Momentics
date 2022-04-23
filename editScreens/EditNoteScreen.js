@@ -12,43 +12,42 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import NoteComponent from "../components/NoteComponent";
+import {
+  NavigationContainer,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 
-const AddNoteScreen = () => {
-  const [noteText, setNoteText] = useState("");
-  const [noteTitle, setNoteTitle] = useState("");
+const EditNote = () => {
   const navigation = useNavigation();
-  const [notes, setNotes] = useState([]);
+  const route = useRoute();
+  const uid = auth.currentUser.uid;
+  const note_obj = db.ref("users/" + uid + "/notes/" + route.params.key);
 
-  //write
-  const writeToDb = () => {
-    const uid = auth.currentUser.uid;
-    var date = new Date();
-    var now =
-      date.getDate() +
-      " - " +
-      (date.getMonth() + 1) +
-      " - " +
-      date.getFullYear() +
-      "  " +
-      date.getHours() +
-      " " +
-      date.getSeconds();
-    db.ref("users/" + uid + "/notes").push({
-      note: noteText,
-      title: noteTitle,
-      time: now,
+  const [noteTitle, setNoteTitle] = useState(route.params.title);
+  const [noteNote, setNoteNote] = useState(route.params.note);
+
+  const updateTitle = (text) => {
+    note_obj.update({
+      title: text,
     });
-    navigation.goBack();
+    setNoteTitle(text);
+  };
+
+  const updateContent = (text) => {
+    note_obj.update({
+      note: text,
+    });
+    setNoteNote(text);
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.inputContainer}>
         <TextInput
+          value={noteTitle}
           placeholder="Title"
-          onChangeText={(text) => setNoteTitle(text)}
+          onChangeText={(text) => updateTitle(text)}
           style={styles.input}
         />
       </View>
@@ -56,21 +55,27 @@ const AddNoteScreen = () => {
       <View style={styles.inputContainer}>
         <TextInput
           height={200}
+          value={noteNote}
           multiline={true}
           placeholder="Note"
-          onChangeText={(text) => setNoteText(text)}
+          onChangeText={(text) => updateContent(text)}
           style={styles.input}
         />
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={writeToDb}>
-        <Text style={styles.buttonText}>Add this note</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          navigation.goBack();
+        }}
+      >
+        <Text style={styles.buttonText}>Finish Editing</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-export default AddNoteScreen;
+export default EditNote;
 
 const styles = StyleSheet.create({
   container: {
@@ -110,11 +115,9 @@ const styles = StyleSheet.create({
     color: "black",
     textAlignVertical: "top",
     backgroundColor: "white",
-    borderBottomWidth: 4,
-    borderBottomColor: "#121212",
     paddingHorizontal: 15,
     paddingVertical: 15,
-    borderRadius: 6.5,
+    borderRadius: 10,
     marginTop: 5,
   },
 
