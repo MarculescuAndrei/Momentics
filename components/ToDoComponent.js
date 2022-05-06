@@ -91,7 +91,7 @@ const ToDoComponent = ({
 
   return (
     <View
-      key={time}
+      key={pushkey}
       style={[
         styles.container,
         getImportance(importance, isDone) == 1
@@ -181,6 +181,7 @@ const styles = StyleSheet.create({
   },
 
   content: {
+    right: 5,
     paddingTop: 15,
     alignItems: "flex-start",
   },
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
   important_border: {
     elevation: 3,
     borderRightWidth: 6,
-    borderColor: "#f57200",
+    borderColor: "#b95eff",
   },
 
   normal_border: {
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
   },
 
   critical_text: { color: "red" },
-  important_text: { color: "#f57200" },
+  important_text: { color: "#b95eff" },
   normal_text: { color: "#ffd000" },
   done_text: { color: "green" },
   empty_text: {},
@@ -260,7 +261,7 @@ const styles = StyleSheet.create({
   container: {
     borderRightWidth: 6,
     borderColor: "red",
-    width: 300,
+    width: 315,
     height: 100,
     borderRadius: 7,
     margin: 10,
@@ -269,7 +270,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "flex-start",
     alignItems: "flex-start",
-    backgroundColor: "white",
+    backgroundColor: "#ededed",
     elevation: 4,
   },
 });

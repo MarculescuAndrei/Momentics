@@ -38,7 +38,7 @@ const EditTask = () => {
     { item: "Tuesday", id: 2 },
     { item: "Wednesday", id: 3 },
     { item: "Thursday", id: 4 },
-    { item: "Friday ", id: 5 },
+    { item: "Friday", id: 5 },
     { item: "Saturday", id: 6 },
     { item: "Sunday", id: 7 },
   ];
@@ -66,7 +66,6 @@ const EditTask = () => {
   };
 
   function onMultiChange() {
-    console.log(selectedDays);
     return (item) => setSelectedDays(xorBy(selectedDays, [item], "id"));
   }
 

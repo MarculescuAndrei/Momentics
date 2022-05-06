@@ -2,14 +2,17 @@ import { View, Text, StyleSheet, Button, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import { Feather } from "@expo/vector-icons";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const [name, setName] = useState("");
   const [emailSent, setEmailSent] = useState(false);
+  const [passwordEmailSent, setPasswordEmailSent] = useState(false);
   const [verified, setVerified] = useState(false);
 
   const HandlePasswordReset = () => {
+    setPasswordEmailSent(true);
     auth.sendPasswordResetEmail(auth.currentUser?.email);
   };
 
@@ -20,7 +23,7 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     const user = auth.currentUser;
-    console.log(user.emailVerified);
+
     if (user.emailVerified) {
       setVerified(true);
     } else {
@@ -34,10 +37,7 @@ const ProfileScreen = () => {
     var name = db.ref("users/" + uid + "/name");
     name.on("value", (snapshot) => {
       if (snapshot.exists()) {
-        snapshot.forEach((name_obj) => {
-          //console.log(note_obj.key);
-          setName(name_obj.val().name);
-        });
+        setName(snapshot.val().name);
       } else {
         console.log("Data Snapshot is null");
       }
@@ -55,16 +55,32 @@ const ProfileScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text>Your Profile</Text>
-      <Text>E-mail : {auth.currentUser?.email}</Text>
-      <Text>Name : {name}</Text>
-      {auth.currentUser.emailVerified ? (
-        <Text>Your email is verified</Text>
-      ) : (
-        <Text>Your email is not verified</Text>
-      )}
+      <Feather name="user" size={62} color="black" style={{ bottom: 50 }} />
+      <View style={styles.profile_card}>
+        <View style={styles.profile_text}>
+          <Text style={{ color: "#62de81", fontSize: 20 }}>{name}</Text>
+          <Text style={{ color: "white", fontSize: 16 }}>
+            {auth.currentUser?.email}
+          </Text>
+
+          {auth.currentUser.emailVerified ? (
+            <Text style={{ color: "white", fontSize: 16, marginTop: 35 }}>
+              Your email is verified
+            </Text>
+          ) : (
+            <Text style={{ color: "white", fontSize: 16, marginTop: 35 }}>
+              Your email is not verified
+            </Text>
+          )}
+        </View>
+      </View>
+
       <TouchableOpacity style={styles.button} onPress={HandlePasswordReset}>
-        <Text style={styles.buttonText}>Reset Password</Text>
+        {passwordEmailSent ? (
+          <Text style={styles.buttonText}>Password Reset Email Sent</Text>
+        ) : (
+          <Text style={styles.buttonText}>Reset Password</Text>
+        )}
       </TouchableOpacity>
 
       {auth.currentUser.emailVerified ? null : (
@@ -75,6 +91,12 @@ const ProfileScreen = () => {
             <Text style={styles.buttonText}>Verify Email</Text>
           )}
         </TouchableOpacity>
+      )}
+
+      {auth.currentUser.emailVerified ? null : (
+        <Text style={{ color: "white" }}>
+          Email verification requires a re-login
+        </Text>
       )}
 
       <TouchableOpacity style={styles.button} onPress={handleSignOut}>
@@ -95,21 +117,33 @@ const styles = StyleSheet.create({
     backgroundColor: "#666666",
   },
 
-  note_item: {
-    padding: 15,
-    fontSize: 11,
-    marginTop: 12,
-    backgroundColor: "#E6E6E6",
-    borderRadius: 10,
+  profile_card: {
+    height: 150,
+    width: 258,
+    justifyContent: "flex-start",
+    backgroundColor: "#1a1a1a",
+    borderRadius: 5,
+    borderBottomWidth: 4,
+    borderBottomColor: "#62de81",
+    marginBottom: 20,
+  },
+
+  profile_text: {
+    right: 10,
+    padding: 20,
+    margin: 10,
+    bottom: 17,
   },
 
   button: {
-    backgroundColor: "#1f1f1f",
+    backgroundColor: "#1a1a1a",
     width: "70%",
-    padding: 15,
-    borderRadius: 10,
+    padding: 13,
+    borderRadius: 6,
     alignItems: "center",
     margin: 10,
+    borderBottomColor: "white",
+    borderBottomWidth: 2,
   },
 
   buttonText: {

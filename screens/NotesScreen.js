@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
 
   plus_button: {
     elevation: 3,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: "rgba(0,0,0,0.35)",
     alignItems: "center",
     justifyContent: "center",
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     right: 20,
     height: 70,
     backgroundColor: "white",
-    borderRadius: 20,
+    borderRadius: 15,
     zIndex: 3,
   },
 

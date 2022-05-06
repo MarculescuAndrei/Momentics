@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Alert } from "react-native";
+import { View, Text, StyleSheet, Alert, FlatList } from "react-native";
 import React from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native"; //sometimes touch opac needs to be imported from react-native not gestures
@@ -23,6 +23,14 @@ const TaskComponent = ({ pushkey, task_title, days, time }) => {
       days_string = days_string + " " + day;
     });
     return days_string;
+  }
+
+  function heightMaker(days) {
+    if (days.length > 4) {
+      return 85;
+    } else {
+      return 65;
+    }
   }
 
   const handleDelete = () => {
@@ -61,7 +69,11 @@ const TaskComponent = ({ pushkey, task_title, days, time }) => {
   };
 
   return (
-    <TouchableOpacity key={time} style={styles.container} onPress={handleEdit}>
+    <TouchableOpacity
+      key={time}
+      style={[styles.container, { height: heightMaker(days) }]}
+      onPress={handleEdit}
+    >
       <View style={styles.title}>
         <Text style={styles.texttitle}>
           {task_title}
@@ -69,8 +81,19 @@ const TaskComponent = ({ pushkey, task_title, days, time }) => {
         </Text>
       </View>
 
-      <View style={styles.content}>
+      {/* <View style={styles.content}>
         <Text style={styles.content_text}>{daysMaker(days)}</Text>
+      </View> */}
+
+      <View style={styles.content}>
+        <FlatList
+          numColumns={4}
+          data={days}
+          renderItem={({ item }) => (
+            <Text style={{ color: "gray" }}>{item} </Text>
+          )}
+          keyExtractor={(item, index) => index}
+        />
       </View>
 
       <View style={styles.deletebutton}>
@@ -88,20 +111,17 @@ const styles = StyleSheet.create({
   title: {
     padding: 10,
     left: 5,
-    justifyContent: "flex-start",
+
     position: "absolute",
   },
 
   content: {
-    position: "absolute",
-    left: 12,
-    bottom: 7,
-    paddingTop: 7,
-    alignItems: "flex-start",
+    right: 4.3,
+    top: 11,
   },
 
   content_text: {
-    fontSize: 12,
+    fontSize: 11,
     color: "#6b6b6b",
   },
 
@@ -133,14 +153,10 @@ const styles = StyleSheet.create({
 
   container: {
     width: 300,
-    height: 60,
     borderRadius: 6.7,
     margin: 10,
     padding: 20,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
+
     backgroundColor: "#ededed",
     elevation: 4,
     borderBottomWidth: 6,

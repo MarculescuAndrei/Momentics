@@ -24,7 +24,6 @@ const RegisterScreen = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        console.log("aici");
         navigation.navigate("HomeScreen");
       }
     });
@@ -51,8 +50,22 @@ const RegisterScreen = () => {
           console.log(user.email);
           clearTimeout(timer);
           var uid = auth.currentUser.uid;
-          db.ref("users/" + uid + "/name").push({
+          db.ref("users/" + uid + "/name").set({
             name: name,
+          });
+          db.ref("users/" + uid + "/focus").push({
+            worktime: 1500,
+            relaxtime: 300,
+            cycles: 0,
+          });
+
+          // initiate first day of routine different from day of registration
+          const yesterday = new Date(
+            new Date().valueOf() - 1000 * 60 * 60 * 24
+          );
+
+          db.ref("users/" + uid + "/routine").set({
+            last_routine_day: yesterday.toString().slice(0, 15),
           });
         })
         .catch((error) => alert(error.message));

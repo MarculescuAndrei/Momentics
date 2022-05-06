@@ -27,7 +27,7 @@ const AddTask = () => {
     { item: "Tuesday", id: 2 },
     { item: "Wednesday", id: 3 },
     { item: "Thursday", id: 4 },
-    { item: "Friday ", id: 5 },
+    { item: "Friday", id: 5 },
     { item: "Saturday", id: 6 },
     { item: "Sunday", id: 7 },
   ];
@@ -138,6 +138,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     margin: 20,
+    borderBottomWidth: 4,
+    borderColor: "#4ddb73",
   },
 
   buttonText: {

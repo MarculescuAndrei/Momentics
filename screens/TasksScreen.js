@@ -28,6 +28,10 @@ const TasksScreen = () => {
   const isFocused = useIsFocused();
   const [dataState, setDataState] = useState();
 
+  const handleAddTask = () => {
+    navigation.navigate("AddTaskScreen");
+  };
+
   //read
   useEffect(() => {
     const uid = auth.currentUser.uid;
@@ -60,7 +64,11 @@ const TasksScreen = () => {
         {dataState && (
           <FlatList
             style={{ flexGrow: 0 }}
-            ListFooterComponent={<View style={{ height: 70 }} />}
+            ListFooterComponent={
+              <TouchableOpacity style={styles.button} onPress={handleAddTask}>
+                <Text style={styles.buttonText}>Add More Tasks</Text>
+              </TouchableOpacity>
+            }
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
             numColumns={1}
@@ -92,6 +100,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     backgroundColor: "#666666",
+  },
+
+  button: {
+    backgroundColor: "#1f1f1f",
+    width: "95%",
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    margin: 10,
+    borderBottomWidth: 3,
+    borderColor: "#62de81",
+  },
+
+  buttonText: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 16,
   },
 
   check_button: {
@@ -137,21 +162,6 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0, 0, 0, 0.75)",
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
-  },
-
-  button: {
-    backgroundColor: "#03b1fc",
-    width: "60%",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    margin: 20,
-  },
-
-  buttonText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: 16,
   },
 
   input: {

@@ -46,7 +46,7 @@ const NoteComponent = ({ pushkey, time, note, title }) => {
 
   return (
     <TouchableOpacity
-      key={time}
+      key={pushkey}
       style={styles.container}
       onPress={handleEditPress}
     >
@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
   content: {
     paddingTop: 15,
     alignItems: "flex-start",
+    right: 1,
   },
 
   date: {

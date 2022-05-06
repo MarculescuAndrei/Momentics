@@ -84,10 +84,26 @@ const AddToDoScreen = () => {
           selectedValue={importance}
           onValueChange={(itemValue, itemIndex) => setImportance(itemValue)}
         >
-          <Picker.Item value="" label="Choose  importance.." />
-          <Picker.Item label="Critical" value="Critical" />
-          <Picker.Item label="Important" value="Important" />
-          <Picker.Item label="Normal" value="Normal" />
+          <Picker.Item
+            value=""
+            label="Choose  importance.."
+            style={{ color: "black" }}
+          />
+          <Picker.Item
+            label="Critical"
+            value="Critical"
+            style={{ color: "red" }}
+          />
+          <Picker.Item
+            label="Important"
+            value="Important"
+            style={{ color: "#b95eff" }}
+          />
+          <Picker.Item
+            label="Normal"
+            value="Normal"
+            style={{ color: "#fcb130" }}
+          />
         </Picker>
       </View>
 
@@ -111,19 +127,17 @@ const AddToDoScreen = () => {
         />
       )}
 
-      <TouchableOpacity style={styles.button} onPress={showDatePicker}>
-        <Text style={styles.buttonText}>
-          {showDateText ? dueDate : "Choose a due date"}
-        </Text>
-      </TouchableOpacity>
+      <View style={{ marginTop: 100 }}>
+        <TouchableOpacity style={styles.button} onPress={showDatePicker}>
+          <Text style={styles.buttonText}>
+            {showDateText ? dueDate : "Choose a due date"}
+          </Text>
+        </TouchableOpacity>
 
-      {/* <View style={styles.date_input}>
-        <Text>{dueDate}</Text>
-      </View> */}
-
-      <TouchableOpacity style={styles.button} onPress={writeToDb}>
-        <Text style={styles.buttonText}>Add this ToDo</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={writeToDb}>
+          <Text style={styles.buttonText}>Add this ToDo</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -169,11 +183,13 @@ const styles = StyleSheet.create({
   button: {
     elevation: 4,
     backgroundColor: "#1f1f1f",
-    width: "60%",
+    width: 281,
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
     marginBottom: 15,
+    borderBottomWidth: 4,
+    borderColor: "#4ddb73",
   },
 
   buttonText: {

@@ -103,6 +103,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     margin: 20,
+    borderBottomWidth: 4,
+    borderColor: "#4ddb73",
   },
 
   buttonText: {
@@ -117,8 +119,10 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     paddingHorizontal: 15,
     paddingVertical: 15,
-    borderRadius: 10,
+    borderRadius: 6.5,
     marginTop: 5,
+    borderBottomWidth: 4,
+    borderBottomColor: "#121212",
   },
 
   inputContainer: {

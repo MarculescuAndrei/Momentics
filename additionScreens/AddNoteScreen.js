@@ -98,6 +98,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     margin: 20,
+    borderBottomWidth: 4,
+    borderColor: "#4ddb73",
   },
 
   buttonText: {
