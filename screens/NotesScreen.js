@@ -2,62 +2,31 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  TextInput,
   View,
-  SafeAreaView,
-  BackHandler,
-  ScrollView,
   FlatList,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
-import {
-  NavigationContainer,
-  useNavigation,
-  useIsFocused,
-} from "@react-navigation/native";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import NoteComponent from "../components/NoteComponent";
-import { Entypo } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { SimpleLineIcons } from "@expo/vector-icons";
 
 const NotesScreen = () => {
-  const [note_prototype, setNotePrototype] = useState("");
   const navigation = useNavigation();
-  const [notes, setNotes] = useState([]);
   const isFocused = useIsFocused();
+  const [notes, setNotes] = useState([]);
   const [dataState, setDataState] = useState();
 
-  //write
-  const writeToDb = () => {
-    const uid = auth.currentUser.uid;
-    var date = new Date();
-    var now =
-      date.getDate() +
-      " - " +
-      (date.getMonth() + 1) +
-      " - " +
-      date.getFullYear() +
-      "  " +
-      date.getHours() +
-      " " +
-      date.getSeconds();
-    db.ref("users/" + uid + "/notes").push({
-      note: note_prototype,
-      time: now,
-    });
-  };
-
-  //read
+  // read notes
   useEffect(() => {
     const uid = auth.currentUser.uid;
     var all_notes = db.ref("users/" + uid + "/notes");
 
     all_notes.on("value", (snapshot) => {
       if (snapshot.exists()) {
-        //console.log(Object.keys(snapshot.val()));
         const notes_list = [];
         snapshot.forEach((note_obj) => {
-          //console.log(note_obj.key);
           notes_list.push({
             key: note_obj.key,
             title: note_obj.val().title,
@@ -80,26 +49,33 @@ const NotesScreen = () => {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["#e8b02e", "#545454"]}
+        start={{ x: -1, y: -0.8 }}
+        style={styles.background}
+      />
       <TouchableOpacity style={styles.plus_button} onPress={handleAddNote}>
-        <Entypo name="plus" size={44} color="black" />
+        <SimpleLineIcons name="note" size={25} color="black" />
       </TouchableOpacity>
 
       <View>
-        {/* {notes.map((item) => {
-          return (
-            <View key={item.time}>
-              <Text style={styles.note_item}>
-                {item.note} - {item.time.slice(0, 14)}
-              </Text>
-            </View>
-          );
-        })} */}
+        {dataState ? (
+          <View style={styles.note_header}>
+            <Text style={{ color: "white", left: 20 }}>
+              These are your Notes!
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.note_header}>
+            <Text style={{ color: "white", left: 20 }}>
+              Start by adding some Notes.
+            </Text>
+          </View>
+        )}
+      </View>
 
-        {/* {notes.map((item) => {
-          return (
-            <NoteComponent time={item.time.slice(0, 14)} note={item.note} />
-          );
-        })} */}
+      <View>
         {dataState && (
           <FlatList
             ListFooterComponent={<View style={{ height: 150 }} />}
@@ -133,7 +109,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     flexWrap: "wrap",
-    backgroundColor: "#666666",
+    backgroundColor: "#545454",
+  },
+
+  background: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 300,
   },
 
   plus_button: {
@@ -152,12 +136,17 @@ const styles = StyleSheet.create({
     zIndex: 3,
   },
 
-  note_item: {
-    padding: 15,
-    fontSize: 11,
-    marginTop: 12,
-    backgroundColor: "#E6E6E6",
-    borderRadius: 10,
+  note_header: {
+    justifyContent: "center",
+    marginTop: 10,
+    marginBottom: 15,
+    height: 40,
+    width: 320,
+    backgroundColor: "#2e2e2e",
+    elevation: 4,
+    borderRadius: 5,
+    borderLeftWidth: 4,
+    borderColor: "#e8b02e",
   },
 
   button: {
@@ -167,23 +156,5 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     margin: 20,
-  },
-
-  buttonText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-
-  input: {
-    backgroundColor: "white",
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 10,
-    marginTop: 5,
-  },
-
-  inputContainer: {
-    width: "80%",
   },
 });

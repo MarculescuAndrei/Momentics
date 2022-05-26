@@ -2,27 +2,19 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  KeyboardAvoidingView,
   TextInput,
   View,
-  SafeAreaView,
-  BackHandler,
-  ScrollView,
-  FlatList,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import {
-  NavigationContainer,
   useNavigation,
   useRoute,
   useIsFocused,
 } from "@react-navigation/native";
-import NoteComponent from "../components/NoteComponent";
-import { MaterialIcons } from "@expo/vector-icons";
 import SelectBox from "react-native-multi-selectbox";
 import { xorBy } from "lodash";
-import { set } from "react-native-reanimated";
+import { LinearGradient } from "expo-linear-gradient";
 
 const EditTask = () => {
   const navigation = useNavigation();
@@ -31,7 +23,7 @@ const EditTask = () => {
   const isFocused = useIsFocused();
   const task_obj = db.ref("users/" + uid + "/tasks/" + route.params.key);
   const [taskTitle, setTaskTitle] = useState(route.params.task);
-  const [taskDays, setTaskDays] = useState(route.params.days);
+  const [allWeek, setAllWeek] = useState(false);
 
   const days = [
     { item: "Monday", id: 1 },
@@ -65,18 +57,35 @@ const EditTask = () => {
     setTaskTitle(text);
   };
 
+  // adds days to the selected ones
   function onMultiChange() {
     return (item) => setSelectedDays(xorBy(selectedDays, [item], "id"));
   }
 
+  const makeAllWeekTask = () => {
+    if (allWeek == true) {
+      setSelectedDays([]);
+      setAllWeek(false);
+    } else {
+      setAllWeek(true);
+      setSelectedDays(days);
+    }
+  };
+
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["white", "#666666"]}
+        start={{ x: 0, y: -2 }}
+        style={styles.background}
+      />
       <View style={styles.inputContainer}>
         <TextInput
           value={taskTitle}
           placeholder="Task"
           onChangeText={(text) => updateTitle(text)}
-          style={styles.input}
+          style={styles.inputTitle}
         />
       </View>
 
@@ -97,6 +106,13 @@ const EditTask = () => {
       </View>
 
       <TouchableOpacity
+        style={[styles.button_week, allWeek ? styles.button_all_week : null]}
+        onPress={makeAllWeekTask}
+      >
+        <Text style={styles.buttonText}>All-Week</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
         style={styles.button}
         onPress={() => {
           var task_days = [];
@@ -109,7 +125,7 @@ const EditTask = () => {
           navigation.goBack();
         }}
       >
-        <Text style={styles.buttonText}>Finish Editing Task</Text>
+        <Text style={styles.buttonText}>Finish Editing</Text>
       </TouchableOpacity>
     </View>
   );
@@ -128,12 +144,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#666666",
   },
 
-  note_item: {
-    padding: 15,
-    fontSize: 11,
-    marginTop: 12,
-    backgroundColor: "#E6E6E6",
-    borderRadius: 10,
+  background: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 600,
   },
 
   pickerview: {
@@ -149,11 +165,30 @@ const styles = StyleSheet.create({
 
   button: {
     backgroundColor: "#1f1f1f",
-    width: "80%",
-    padding: 15,
-    borderRadius: 10,
+    width: "38%",
+    padding: 12,
+    borderRadius: 6,
     alignItems: "center",
-    margin: 20,
+    margin: 5,
+    borderBottomWidth: 4,
+    borderColor: "#4ddb73",
+  },
+
+  button_week: {
+    backgroundColor: "#1f1f1f",
+    width: "38%",
+    padding: 12,
+    margin: 5,
+    borderRadius: 6,
+    alignItems: "center",
+    borderBottomWidth: 4,
+    borderColor: "#4f81ff",
+  },
+
+  button_all_week: {
+    backgroundColor: "#4f81ff",
+    borderBottomWidth: 4,
+    borderColor: "#1f1f1f",
   },
 
   buttonText: {
@@ -162,17 +197,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
-  input: {
+  inputTitle: {
     color: "black",
     textAlignVertical: "top",
-    backgroundColor: "white",
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    borderRadius: 6.5,
-    marginTop: 5,
-    borderBottomWidth: 4,
-    borderBottomColor: "#121212",
-    elevation: 4,
+    backgroundColor: "transparent",
+    fontSize: 24,
+    fontWeight: "bold",
+    paddingLeft: 5,
+    marginTop: 15,
   },
 
   inputContainer: {

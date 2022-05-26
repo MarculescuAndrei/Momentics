@@ -1,39 +1,20 @@
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  TextInput,
-  View,
-  SafeAreaView,
-  BackHandler,
-  ScrollView,
-  FlatList,
-} from "react-native";
+import { StyleSheet, Text, View, FlatList } from "react-native";
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
-import {
-  NavigationContainer,
-  useNavigation,
-  useIsFocused,
-} from "@react-navigation/native";
-import NoteComponent from "../components/NoteComponent";
-import { Entypo } from "@expo/vector-icons";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import ToDoComponent from "../components/ToDoComponent";
+import { LinearGradient } from "expo-linear-gradient";
 
 const DoneToDoScreen = () => {
   const [toDos, setToDos] = useState([]);
   const navigation = useNavigation();
-  const [name, setName] = useState("");
-
-  const handleAddToDo = () => {
-    navigation.navigate("AddToDoScreen");
-  };
 
   const isFocused = useIsFocused();
   const [dataState, setDataState] = useState();
 
+  // reads all ToDo's that have done value = true
   useEffect(() => {
+    let isCancelled = false;
     const uid = auth.currentUser.uid;
     var all_todos = db.ref("users/" + uid + "/todos");
 
@@ -53,19 +34,32 @@ const DoneToDoScreen = () => {
             });
           }
         });
-        setDataState(true);
+
         setToDos(todos_list);
-      } else {
+        if (todos_list.length > 0) {
+          setDataState(true);
+        }
+      } else if (todos_list.length > 0) {
         setDataState(false);
         console.log("Data Snapshot is null");
       }
     });
+
+    return () => {
+      isCancelled = true;
+    };
   }, [isFocused]);
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["#4ddb73", "#666666"]}
+        start={{ x: 0, y: -1.5 }}
+        style={styles.background}
+      />
       <View>
-        {dataState && (
+        {dataState ? (
           <FlatList
             style={{ flexGrow: 0 }}
             ListFooterComponent={<View style={{ height: 70 }} />}
@@ -86,6 +80,12 @@ const DoneToDoScreen = () => {
               />
             )}
           />
+        ) : (
+          <View style={styles.routine_header}>
+            <Text style={{ color: "white", left: 20 }}>
+              You haven't done a ToDo yet.
+            </Text>
+          </View>
         )}
       </View>
     </View>
@@ -105,75 +105,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#666666",
   },
 
-  check_button: {
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.35)",
-    alignItems: "center",
-    justifyContent: "center",
-    width: 70,
+  background: {
     position: "absolute",
-    bottom: 110,
-    right: 20,
-    height: 70,
-    backgroundColor: "white",
-    borderRadius: 20,
-    zIndex: 3,
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 250,
   },
 
-  plus_button: {
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.35)",
-    alignItems: "center",
+  routine_header: {
     justifyContent: "center",
-    width: 70,
-    position: "absolute",
-    bottom: 30,
-    right: 20,
-    height: 70,
-    backgroundColor: "white",
-    borderRadius: 20,
-    zIndex: 3,
-  },
-
-  todotitleview: {
-    paddingBottom: 15,
-  },
-
-  todotitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "white",
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-  },
-
-  button: {
-    backgroundColor: "#03b1fc",
-    width: "60%",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    margin: 20,
-  },
-
-  buttonText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-
-  input: {
-    backgroundColor: "white",
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 10,
-    marginTop: 5,
-  },
-
-  inputContainer: {
-    width: "80%",
+    marginTop: 20,
+    height: 50,
+    width: 320,
+    backgroundColor: "#2e2e2e",
+    elevation: 4,
+    borderRadius: 5,
+    borderLeftWidth: 4,
+    borderColor: "red",
   },
 });

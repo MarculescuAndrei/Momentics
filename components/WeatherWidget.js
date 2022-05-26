@@ -1,11 +1,5 @@
-import { View, Text, StyleSheet, Alert, Image } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import React from "react";
-import { MaterialIcons } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { auth, db } from "../firebase";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import EditNote from "../editScreens/EditNoteScreen";
-import { useEffect, useState } from "react/cjs/react.production.min";
 
 const WeatherWidget = ({ temp, icon, city }) => {
   return (
@@ -52,7 +46,6 @@ const styles = StyleSheet.create({
     width: 150,
     height: 80,
     borderRadius: 6.7,
-
     padding: 20,
     flexDirection: "row",
     flexWrap: "wrap",

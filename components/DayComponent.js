@@ -1,17 +1,8 @@
-import { View, Text, StyleSheet, Alert, FlatList } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import React from "react";
-
-import { TouchableOpacity } from "react-native"; //sometimes touch opac needs to be imported from react-native not gestures
-import { auth, db } from "../firebase";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import EditNote from "../editScreens/EditNoteScreen";
-import { useEffect } from "react/cjs/react.production.min";
-import { Ionicons } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 
 const DayComponent = ({ day, tasks }) => {
-  const navigation = useNavigation();
-
   var days = [
     "Sunday",
     "Monday",
@@ -24,17 +15,7 @@ const DayComponent = ({ day, tasks }) => {
 
   const today = new Date(new Date().valueOf());
 
-  function daysMaker(days) {
-    var days_string = "";
-    days.forEach((day) => {
-      days_string = days_string + " " + day;
-    });
-    return days_string;
-  }
-
   function heightMaker(tasks) {
-    var height = tasks.length * 45;
-
     if (tasks.length == 1) {
       return 80;
     }
@@ -69,8 +50,6 @@ const DayComponent = ({ day, tasks }) => {
       return tasks.length * 27;
     }
   }
-
-  // de pus height dinamic cu functie ca aici: https://stackoverflow.com/questions/29363671/can-i-make-dynamic-styles-in-react-native
 
   return (
     <View>
@@ -140,7 +119,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "flex-end",
     top: 13,
-    right: 13,
+    right: 35,
     position: "absolute",
   },
 
@@ -157,31 +136,11 @@ const styles = StyleSheet.create({
     color: "white",
   },
 
-  date: {
-    position: "absolute",
-    top: 120,
-    right: 10,
-  },
-
-  textdate: {
-    color: "#5e5e5e",
-    fontSize: 11,
-  },
-
   texttitle: {
     flex: 1,
     fontSize: 18,
     fontWeight: "bold",
     color: "white",
-  },
-
-  deletebutton: {
-    position: "absolute",
-    zIndex: 400,
-    width: 40,
-    height: 100,
-    top: 17,
-    left: 270,
   },
 
   container: {

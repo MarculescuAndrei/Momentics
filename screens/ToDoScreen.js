@@ -2,30 +2,25 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  TextInput,
   View,
-  SafeAreaView,
-  BackHandler,
-  ScrollView,
   FlatList,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
-import {
-  NavigationContainer,
-  useNavigation,
-  useIsFocused,
-} from "@react-navigation/native";
-import NoteComponent from "../components/NoteComponent";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { Entypo } from "@expo/vector-icons";
 import ToDoComponent from "../components/ToDoComponent";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+
 const ToDoScreen = () => {
   const [toDos, setToDos] = useState([]);
   const navigation = useNavigation();
-  const [name, setName] = useState("");
 
+  const isFocused = useIsFocused();
+  const [dataState, setDataState] = useState();
+
+  // navigation functions
   const handleAddToDo = () => {
     navigation.navigate("AddToDoScreen");
   };
@@ -34,9 +29,7 @@ const ToDoScreen = () => {
     navigation.navigate("DoneTodosScreen");
   };
 
-  const isFocused = useIsFocused();
-  const [dataState, setDataState] = useState();
-
+  // reads all todos that are not done
   useEffect(() => {
     const uid = auth.currentUser.uid;
     var all_todos = db.ref("users/" + uid + "/todos");
@@ -68,6 +61,12 @@ const ToDoScreen = () => {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["#d43939", "#666666"]}
+        start={{ x: -1, y: -0.8 }}
+        style={styles.background}
+      />
       <TouchableOpacity
         style={styles.check_button}
         onPress={handleSeeDoneTodos}
@@ -84,10 +83,26 @@ const ToDoScreen = () => {
       </TouchableOpacity>
 
       <View>
+        {dataState ? (
+          <View style={styles.todo_header}>
+            <Text style={{ color: "white", left: 20 }}>
+              These are your important tasks!
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.todo_header}>
+            <Text style={{ color: "white", left: 20 }}>
+              Start by adding some ToDo's.
+            </Text>
+          </View>
+        )}
+      </View>
+
+      <View>
         {dataState && (
           <FlatList
             style={{ flexGrow: 0 }}
-            ListFooterComponent={<View style={{ height: 70 }} />}
+            ListFooterComponent={<View style={{ height: 240 }} />}
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
             numColumns={1}
@@ -124,6 +139,27 @@ const styles = StyleSheet.create({
     backgroundColor: "#666666",
   },
 
+  background: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 300,
+  },
+
+  todo_header: {
+    justifyContent: "center",
+    marginTop: 10,
+    marginBottom: 15,
+    height: 40,
+    width: 315,
+    backgroundColor: "#2e2e2e",
+    elevation: 4,
+    borderRadius: 5,
+    borderLeftWidth: 4,
+    borderColor: "red",
+  },
+
   check_button: {
     elevation: 3,
     borderWidth: 2,
@@ -154,45 +190,5 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 15,
     zIndex: 3,
-  },
-
-  todotitleview: {
-    paddingBottom: 15,
-  },
-
-  todotitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "white",
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-  },
-
-  button: {
-    backgroundColor: "#03b1fc",
-    width: "60%",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    margin: 20,
-  },
-
-  buttonText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-
-  input: {
-    backgroundColor: "white",
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 10,
-    marginTop: 5,
-  },
-
-  inputContainer: {
-    width: "80%",
   },
 });

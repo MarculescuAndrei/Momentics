@@ -4,13 +4,11 @@ import NotesScreen from "../screens/NotesScreen";
 import RoutineScreen from "../screens/RoutineScreen";
 import {
   createDrawerNavigator,
-  DrawerItem,
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
-import { View, Text, StyleSheet, Alert, Button } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { View, Text, StyleSheet } from "react-native";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import FocusScreen from "../screens/FocusScreen";
 import { Feather } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
@@ -22,6 +20,8 @@ const DrawerNavigator = () => {
   const Drawer = createDrawerNavigator();
   const navigation = useNavigation();
   const [name, setName] = useState("");
+  const isFocused = useIsFocused();
+
   const switchToProfile = () => {
     navigation.navigate("ProfileScreen");
   };
@@ -54,6 +54,7 @@ const DrawerNavigator = () => {
   };
 
   useEffect(() => {
+    let isCancelled = false;
     db.ref("users/" + auth.currentUser.uid + "/name").once(
       "value",
       (snapshot) => {
@@ -64,7 +65,11 @@ const DrawerNavigator = () => {
         }
       }
     );
-  }, []);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isFocused]);
 
   const handleSignOut = () => {
     auth

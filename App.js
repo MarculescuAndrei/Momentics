@@ -119,7 +119,7 @@ export default function App() {
         />
         <Stack.Screen
           options={{
-            title: "Add a Note",
+            title: "Write Note",
             headerShown: true,
             headerStyle: {
               backgroundColor: "#1a1a1a",
@@ -250,31 +250,3 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
-
-//<Stack.Navigator>
-//        <Stack.Screen
-//          options={{ headerShown: false }}
-//          name="LoginScreen"
-//          component={LoginScreen}
-//        />
-//        <Stack.Screen
-//          options={{ headerShown: false }}
-//          name="HomeScreen"
-//          component={HomeScreen}
-//        />
-//        <Stack.Screen
-//          options={{ headerShown: false }}
-//          name="RegisterScreen"
-//          component={RegisterScreen}
-//        />
-//      </Stack.Navigator>
-
-//<Drawer.Navigator initialRouteName="Login Screen">
-//        <Drawer.Screen name="Home" component={HomeScreen} />
-//        <Drawer.Screen name="Login Screen" component={LoginScreen} />
-//        <Drawer.Screen name="Register Screen" component={RegisterScreen} />
-//        <Drawer.Screen
-//          name="Email Verification Screen"
-//          component={EmailVerificationScreen}
-//        />
-//      </Drawer.Navigator>

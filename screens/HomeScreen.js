@@ -1,31 +1,24 @@
 import {
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  TextInput,
   View,
-  SafeAreaView,
   BackHandler,
   ScrollView,
 } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
-import {
-  NavigationContainer,
-  useIsFocused,
-  useNavigation,
-} from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import WeatherWidget from "../components/WeatherWidget";
 import * as Permissions from "expo-permissions";
 import * as Location from "expo-location";
-import { add, and } from "react-native-reanimated";
 import DailyTaskComponent from "../components/DailyTaskComponent";
 import NoteComponent from "../components/NoteComponent";
 import ToDoComponent from "../components/ToDoComponent";
+import { LinearGradient } from "expo-linear-gradient";
 import { Entypo } from "@expo/vector-icons";
+import { useRoute } from "@react-navigation/native";
+import TipComponent from "../components/TipComponent";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -43,12 +36,15 @@ const HomeScreen = () => {
   const [dayTasks, setDayTasks] = useState([]);
   const [dayCompleted, setDayCompleted] = useState(false);
   const [showNoTasks, setShowNoTasks] = useState(false);
-
+  const [missedDays, setMissedDays] = useState(0);
+  const [lastRoutineDay, setLastRoutineDay] = useState("");
   const [notes, setNotes] = useState([]);
   const [notesState, setNotesState] = useState(false);
 
   const [toDos, setToDos] = useState([]);
   const [todosState, setTodosState] = useState(false);
+
+  const route = useRoute();
 
   var days = [
     "Sunday",
@@ -81,8 +77,10 @@ const HomeScreen = () => {
       "hardwareBackPress",
       () => true
     );
-    return () => backHandler.remove();
-  }, []);
+    if (route.name == "Home") {
+      return () => backHandler.remove();
+    }
+  }, [isFocused]);
 
   //read name function, triggers everytime the screen is in Focus
   useEffect(() => {
@@ -112,14 +110,13 @@ const HomeScreen = () => {
       let address = await Location.reverseGeocodeAsync(location.coords).then(
         fetchWeather(location.coords.latitude, location.coords.longitude)
       );
-
       setLocation(location);
       setCity(address[0].city);
     })();
-  }, []);
+  }, [isFocused]);
 
   //fetch weather data
-  function fetchWeather(latitude, longitude) {
+  async function fetchWeather(latitude, longitude) {
     fetch(
       `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&APPID=0ed48c13f6e5613ada2a141e010784c3&units=metric`
     )
@@ -127,62 +124,38 @@ const HomeScreen = () => {
       .then((json) => {
         setTemp(json.main.temp);
         setIcon(json.weather[0].icon);
+        getAllTasks(json.weather[0].description);
       });
+
+    return;
   }
 
-  //read tasks, notes and more
-  useEffect(() => {
+  //function to delay use effect
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  //function that reads all tasks exactly when the weather condition is extracted.
+  function getAllTasks(condition) {
     const uid = auth.currentUser.uid;
-    var all_tasks = db.ref("users/" + uid + "/tasks");
-    var all_notes = db.ref("users/" + uid + "/notes");
-    var all_todos = db.ref("users/" + uid + "/todos");
-
     const today = new Date(new Date().valueOf());
-    const yesterday = new Date(new Date().valueOf() - 1000 * 60 * 60 * 24);
-    const day_before_yesterday = new Date(
-      new Date().valueOf() - 1000 * 60 * 60 * 48
-    );
+    var all_tasks = db.ref("users/" + uid + "/tasks");
 
-    db.ref("users/" + uid + "/routine").once("value", (snapshot) => {
-      if (snapshot.exists()) {
-        // verifies if day was completed today, or if it needs to reset after midnight
-
-        if (snapshot.val().last_routine_day == today.toString().slice(0, 15)) {
-          setDayCompleted(true);
-        } else if (
-          snapshot.val().last_routine_day == yesterday.toString().slice(0, 15)
-        ) {
-          setDayCompleted(false);
-          console.log(dayCompleted);
-        } else if (
-          snapshot.val().last_routine_day ==
-          day_before_yesterday.toString().slice(0, 15)
-        ) {
-          finishDay();
-          setDayCompleted(false);
-
-          setDayCompleted(false);
-          console.log(dayCompleted);
-        }
-      } else {
-        console.log("Data Snapshot is null");
-      }
-    });
-
-    // read all tasks for current day from db
     all_tasks.on("value", (snapshot) => {
       if (snapshot.exists()) {
         const tasks_list = [];
         snapshot.forEach((task_obj) => {
           task_obj.val().days.forEach((task_day) => {
             if (task_day == days[today.getDay()]) {
-              tasks_list.push({
-                key: task_obj.key,
-                task_title: task_obj.val().task,
-                days: task_obj.val().days,
-                time: task_obj.val().time,
-                isDoneForToday: task_obj.val().isDoneForToday,
-              });
+              if (condition != "Unknown") {
+                tasks_list.push({
+                  key: task_obj.key,
+                  task_title: task_obj.val().task,
+                  days: task_obj.val().days,
+                  time: task_obj.val().time,
+                  isDoneForToday: task_obj.val().isDoneForToday,
+                  isOutdoors: task_obj.val().isOutdoors,
+                  condition: condition,
+                });
+              }
             }
           });
         });
@@ -193,14 +166,35 @@ const HomeScreen = () => {
         console.log("Data Snapshot is null");
       }
     });
+  }
+
+  //read todos, notes and more
+  useEffect(async () => {
+    await delay(200);
+    const uid = auth.currentUser.uid;
+    var all_tasks = db.ref("users/" + uid + "/tasks");
+    var all_notes = db.ref("users/" + uid + "/notes");
+    var all_todos = db.ref("users/" + uid + "/todos");
+    var routine_info = db.ref("users/" + uid + "/routine");
+
+    const today = new Date(new Date().valueOf());
+    const yesterday = new Date(new Date().valueOf() - 1000 * 60 * 60 * 24);
+
+    // read nr of days missed and get last routine day to calculate in case some days are missed
+    routine_info.once("value", (snapshot) => {
+      if (snapshot.exists()) {
+        setMissedDays(snapshot.val().missed_routine_days);
+        setLastRoutineDay(snapshot.val().last_routine_day);
+      } else {
+        console.log("Data Snapshot is null");
+      }
+    });
 
     // read all notes from db
     all_notes.on("value", (snapshot) => {
       if (snapshot.exists()) {
-        //console.log(Object.keys(snapshot.val()));
         const notes_list = [];
         snapshot.forEach((note_obj) => {
-          //console.log(note_obj.key);
           notes_list.push({
             key: note_obj.key,
             title: note_obj.val().title,
@@ -236,10 +230,43 @@ const HomeScreen = () => {
             });
           }
         });
-        setTodosState(true);
+        if (todos_list.length > 0) {
+          setTodosState(true);
+        } else {
+          setTodosState(false);
+        }
+
         setToDos(todos_list);
       } else {
         setTodosState(false);
+        console.log("Data Snapshot is null");
+      }
+    });
+
+    // verifies if day was completed today, or if it needs to reset after midnight, or if the user resetted the routine before
+    db.ref("users/" + uid + "/routine").once("value", (snapshot) => {
+      if (snapshot.exists()) {
+        if (snapshot.val().last_routine_day == today.toString().slice(0, 15)) {
+          setDayCompleted(true);
+        } else if (
+          snapshot.val().last_routine_day == yesterday.toString().slice(0, 15)
+        ) {
+          setDayCompleted(false);
+        } else if (
+          new Date(snapshot.val().last_routine_day.toString().slice(0, 15)) <
+          new Date(yesterday.toString().slice(0, 15))
+        ) {
+          finishDay("reset_mode");
+          setDayCompleted(false);
+        } else if (snapshot.val().last_routine_day == "resetted" && dataState) {
+          setDayCompleted(false);
+          var routine_info = db.ref("users/" + uid + "/routine");
+          routine_info.set({
+            last_routine_day: yesterday.toString().slice(0, 15),
+            missed_routine_days: 0,
+          });
+        }
+      } else {
         console.log("Data Snapshot is null");
       }
     });
@@ -264,12 +291,11 @@ const HomeScreen = () => {
   }
 
   // function to finish the current day of routine
-  const finishDay = () => {
+  const finishDay = (mode = "finish_mode") => {
     var now = new Date();
     var done_tasks = 0;
     var all_tasks = db.ref("users/" + auth.currentUser.uid + "/tasks");
-    // asta isi ia true si cand se reseteaza doar ca trece ziua ceea ce nu e ok
-    console.log(dayTasks);
+
     all_tasks.once("value", (snapshot) => {
       if (snapshot.exists()) {
         dayTasks.forEach((task_obj) => {
@@ -288,30 +314,55 @@ const HomeScreen = () => {
       }
     });
 
-    dayTasks.forEach((task_obj) => {
-      if (task_obj.isDoneForToday == true) {
-        done_tasks = done_tasks + 1;
-      }
-    });
+    if (mode == "reset_mode") {
+      // de verificat dc nu merge uneori diferenta, pot sa fac split-ul ala
+      var yesterday = new Date(new Date().valueOf() - 1000 * 60 * 60 * 24);
+      var difference = Math.abs(yesterday - new Date(lastRoutineDay).getTime());
 
-    setDayCompleted(true);
+      // const date1 = new Date(new Date().valueOf() - 1000 * 60 * 60 * 24);
+      // const date2 = new Date(lastRoutineDay);
 
-    // update last day of done routine
-    var new_date = new Date(new Date().valueOf());
-    db.ref("users/" + auth.currentUser.uid + "/routine").set({
-      last_routine_day: new_date.toString().slice(0, 15),
-    });
+      // const diffTime = Math.abs(date2 - date1);
+      // const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    var date = new Date();
-    db.ref("users/" + auth.currentUser.uid + "/routine_days").push({
-      tasks_done: done_tasks.toString() + "/" + dayTasks.length.toString(),
-      day: date.getDate(),
-      month: months[new Date().getMonth()],
-    });
+      console.log(Math.ceil(difference / (1000 * 3600 * 24)));
 
-    // console.log(done_tasks.toString() + "/" + dayTasks.length.toString());
+      // console.log(new Date(lastRoutineDay).getTime());
+      // console.log(new Date(yesterday.toString().slice(0, 15)).getTime());
+
+      db.ref("users/" + auth.currentUser.uid + "/routine").set({
+        last_routine_day: yesterday.toString().slice(0, 15),
+        missed_routine_days:
+          missedDays + Math.ceil(difference / (1000 * 3600 * 24)),
+      });
+
+      setDayCompleted(false);
+    } else {
+      dayTasks.forEach((task_obj) => {
+        if (task_obj.isDoneForToday == true) {
+          done_tasks = done_tasks + 1;
+        }
+      });
+
+      setDayCompleted(true);
+
+      // update last day of done routine
+      var today = new Date(new Date().valueOf());
+      db.ref("users/" + auth.currentUser.uid + "/routine").set({
+        last_routine_day: today.toString().slice(0, 15),
+        missed_routine_days: missedDays,
+      });
+
+      var date = new Date();
+      db.ref("users/" + auth.currentUser.uid + "/routine_days").push({
+        tasks_done: done_tasks.toString() + "/" + dayTasks.length.toString(),
+        day: date.getDate(),
+        month: months[new Date().getMonth()],
+      });
+    }
   };
 
+  // routing functions
   const startFocus = () => {
     navigation.navigate("FocusScreen");
   };
@@ -327,11 +378,19 @@ const HomeScreen = () => {
   const addTasks = () => {
     navigation.navigate("AddTaskScreen");
   };
-  // console.log(months[new Date().getMonth()]);
 
   return (
     <View style={styles.big_container}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["#4287f5", "#545454"]}
+        start={{ x: -0.6, y: -0.6 }}
+        style={styles.background}
+      />
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={styles.welcome}>
           Welcome,{"\n"}
           {name}
@@ -343,34 +402,32 @@ const HomeScreen = () => {
 
         {!dayCompleted && dataState ? (
           <View>
-            {/* {!showNoTasks ? (
-              <View style={styles.task_header}>
-                <Text style={{ color: "white", elevation: 3 }}>
-                  Here's what your day looks like
-                </Text>
-              </View>
-            ) : (
-              <View style={styles.routine_header}>
-                <Text style={{ color: "white", left: 20 }}>
-                  No tasks for today!
-                </Text>
-              </View>
-            )} */}
-
-            <View style={styles.task_header}>
-              <Text style={{ color: "white", elevation: 3 }}>
-                Here's what your day looks like
-              </Text>
+            <View style={{ left: 12 }}>
+              {dayTasks.length > 0 ? (
+                <View style={styles.task_header}>
+                  <Text style={{ color: "white", elevation: 3 }}>
+                    Here's what your day looks like
+                  </Text>
+                </View>
+              ) : (
+                <View style={styles.routine_header}>
+                  <Text style={{ color: "white", left: 20 }}>
+                    No tasks for today!
+                  </Text>
+                </View>
+              )}
             </View>
 
-            <View style={styles.tasksView}>
+            <View style={styles.tasks_view}>
               {dayTasks.map((item) => {
                 return (
                   <DailyTaskComponent
                     task_title={item.task_title}
                     pushkey={item.key}
-                    key={item.time}
+                    key={item.key}
                     isDoneForToday={item.isDoneForToday}
+                    isOutdoors={item.isOutdoors}
+                    condition={item.condition}
                   />
                 );
               })}
@@ -436,6 +493,7 @@ const HomeScreen = () => {
               {toDos.map((item) => {
                 return (
                   <ToDoComponent
+                    key={item.key}
                     pushkey={item.key}
                     details={item.details}
                     task={item.task}
@@ -471,6 +529,7 @@ const HomeScreen = () => {
             {notes.map((item) => {
               return (
                 <NoteComponent
+                  key={item.key}
                   pushkey={item.key}
                   time={item.time.slice(0, 14)}
                   note={item.note}
@@ -484,12 +543,30 @@ const HomeScreen = () => {
             <Text style={{ color: "white", left: 20 }}>Take some Notes!</Text>
           </TouchableOpacity>
         )}
+
+        <TipComponent />
+
+        {notesState && todosState ? (
+          <View style={{ marginTop: 10, flexDirection: "row" }}>
+            <TouchableOpacity
+              style={[styles.buttonExtra, { borderBottomColor: "#e8b02e" }]}
+              onPress={takeNotes}
+            >
+              <Text style={styles.buttonTextExtra}>Write Note</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.buttonExtra, { borderBottomColor: "#62de81" }]}
+              onPress={makeTodos}
+            >
+              <Text style={styles.buttonTextExtra}>Add ToDo</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
       </ScrollView>
     </View>
   );
 };
-
-// ? = tells js that its ok if email is undefined
 
 export default HomeScreen;
 
@@ -501,10 +578,34 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     flexDirection: "row",
     flexWrap: "wrap",
-    backgroundColor: "#545454",
   },
 
-  tasksView: {},
+  background: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 300,
+  },
+
+  buttonExtra: {
+    elevation: 4,
+    margin: 15,
+    backgroundColor: "#1f1f1f",
+    width: 145,
+    padding: 12,
+    borderRadius: 6,
+    alignItems: "center",
+    marginBottom: 15,
+    borderBottomWidth: 4,
+    borderColor: "#4ddb73",
+  },
+
+  buttonTextExtra: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 14,
+  },
 
   task_header: { marginTop: 25, left: 15 },
 
@@ -522,7 +623,6 @@ const styles = StyleSheet.create({
   },
 
   finish_button: {
-    marginLeft: 10,
     marginTop: 15,
     height: 50,
     width: 100,
@@ -555,6 +655,10 @@ const styles = StyleSheet.create({
     marginTop: 15,
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  tasks_view: {
+    left: 2,
   },
 
   routine_header: {
@@ -619,38 +723,11 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     flexDirection: "row",
     flexWrap: "wrap",
-    backgroundColor: "#666666",
+    backgroundColor: "#545454",
   },
 
   widget_view: {
-    left: 40,
+    left: 28,
     bottom: 45,
-  },
-
-  button: {
-    backgroundColor: "#03b1fc",
-    width: "60%",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    margin: 20,
-  },
-
-  buttonText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-
-  input: {
-    backgroundColor: "white",
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 10,
-    marginTop: 5,
-  },
-
-  inputContainer: {
-    width: "80%",
   },
 });

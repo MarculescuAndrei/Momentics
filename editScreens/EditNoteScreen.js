@@ -2,31 +2,25 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  KeyboardAvoidingView,
   TextInput,
   View,
-  SafeAreaView,
-  BackHandler,
-  ScrollView,
-  FlatList,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { auth, db } from "../firebase";
-import {
-  NavigationContainer,
-  useNavigation,
-  useRoute,
-} from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 
 const EditNote = () => {
   const navigation = useNavigation();
   const route = useRoute();
+
   const uid = auth.currentUser.uid;
   const note_obj = db.ref("users/" + uid + "/notes/" + route.params.key);
 
   const [noteTitle, setNoteTitle] = useState(route.params.title);
   const [noteNote, setNoteNote] = useState(route.params.note);
 
+  // update functions
   const updateTitle = (text) => {
     note_obj.update({
       title: text,
@@ -43,12 +37,18 @@ const EditNote = () => {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["white", "#666666"]}
+        start={{ x: 0, y: -2 }}
+        style={styles.background}
+      />
       <View style={styles.inputContainer}>
         <TextInput
           value={noteTitle}
           placeholder="Title"
           onChangeText={(text) => updateTitle(text)}
-          style={styles.input}
+          style={styles.inputTitle}
         />
       </View>
 
@@ -88,23 +88,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#666666",
   },
 
-  note_item: {
-    padding: 15,
-    fontSize: 11,
-    marginTop: 12,
-    backgroundColor: "#E6E6E6",
-    borderRadius: 10,
+  background: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 600,
   },
 
   button: {
     backgroundColor: "#1f1f1f",
     width: "80%",
-    padding: 15,
-    borderRadius: 10,
+    padding: 12,
+    borderRadius: 6,
     alignItems: "center",
     margin: 20,
     borderBottomWidth: 4,
-    borderColor: "#4ddb73",
+    borderColor: "#e8b02e",
   },
 
   buttonText: {
@@ -113,16 +113,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
+  inputTitle: {
+    color: "black",
+    textAlignVertical: "top",
+    backgroundColor: "transparent",
+    fontSize: 24,
+    fontWeight: "bold",
+    paddingLeft: 5,
+    marginTop: 15,
+  },
+
   input: {
     color: "black",
     textAlignVertical: "top",
     backgroundColor: "white",
+    borderBottomWidth: 4,
+    borderBottomColor: "#121212",
     paddingHorizontal: 15,
     paddingVertical: 15,
     borderRadius: 6.5,
     marginTop: 5,
-    borderBottomWidth: 4,
-    borderBottomColor: "#121212",
   },
 
   inputContainer: {

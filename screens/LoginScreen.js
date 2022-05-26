@@ -1,5 +1,4 @@
 import {
-  Button,
   KeyboardAvoidingView,
   StyleSheet,
   Text,
@@ -12,12 +11,15 @@ import {
 import React, { useEffect, useState } from "react";
 import { auth } from "../firebase";
 import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigation = useNavigation();
-  const image = { uri: "https://i.imgur.com/qDWMTWA.png" };
+  const image = { uri: "https://i.imgur.com/68Hqqfq.png" };
+
+  // logins the user by checking that the auth state has changed
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
@@ -28,22 +30,12 @@ const LoginScreen = () => {
     return unsubscribe;
   }, []);
 
-  // When we leave the screen the unsubscribe will close the listener so it does not ping it.
-
-  //const handleSignUp = () => {
-  //  auth
-  //    .createUserWithEmailAndPassword(email, password)
-  //    .then((userCredentials) => {
-  //      const user = userCredentials.user;
-  //      console.log(user.email);
-  //    })
-  //    .catch((error) => alert(error.message));
-  //};
-
+  // navigate to sign up screen
   const handleSignUp = () => {
     navigation.navigate("RegisterScreen");
   };
 
+  // signs the user with email and password
   const handleLogin = () => {
     auth
       .signInWithEmailAndPassword(email, password)
@@ -56,6 +48,12 @@ const LoginScreen = () => {
 
   return (
     <ImageBackground source={image} style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["#4287f5", "transparent"]}
+        start={{ x: -1, y: -1.4 }}
+        style={styles.background}
+      />
       <KeyboardAvoidingView
         keyboardVerticalOffset={-500}
         style={styles.containerView}
@@ -64,8 +62,12 @@ const LoginScreen = () => {
         <View>
           <Image
             source={require("../assets/Logo.png")}
-            style={{ width: 350, height: 100, marginBottom: 100 }}
+            style={{ width: 350, height: 100 }}
           />
+        </View>
+
+        <View style={styles.motto}>
+          <Text style={{ color: "white" }}>Your go-to productivity app.</Text>
         </View>
 
         <View style={styles.inputContainer}>
@@ -88,10 +90,7 @@ const LoginScreen = () => {
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={handleSignUp}
-            style={[styles.button, styles.buttonOutline]}
-          >
+          <TouchableOpacity onPress={handleSignUp} style={styles.button}>
             <Text style={styles.buttonOutlineText}>Register</Text>
           </TouchableOpacity>
         </View>
@@ -107,7 +106,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    //backgroundColor: "#666666",
   },
 
   containerView: {
@@ -115,11 +113,23 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    //backgroundColor: "#666666",
   },
 
   inputContainer: {
-    width: "80%",
+    width: "100%",
+  },
+
+  motto: {
+    marginBottom: 10,
+    bottom: 20,
+  },
+
+  background: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 300,
   },
 
   input: {
@@ -127,40 +137,36 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     paddingHorizontal: 15,
     paddingVertical: 10,
-    borderRadius: 6.5,
-    borderBottomColor: "#121212",
-    borderBottomWidth: 4,
+    borderRadius: 5,
+    borderLeftColor: "#4287f5",
+    borderLeftWidth: 3,
     borderBottomLeftRadius: 5,
     borderBottomRightRadius: 5,
     margin: 7,
   },
 
   buttonContainer: {
-    width: "60%",
-    justifyContent: "center",
+    flexDirection: "row",
+    justifyContent: "flex-start",
     alignItems: "center",
     marginTop: 40,
   },
 
   button: {
-    backgroundColor: "#1f1f1f",
-    width: "100%",
+    backgroundColor: "black",
+    width: 138,
     padding: 15,
-    borderRadius: 10,
+    margin: 10,
+    borderRadius: 6,
     alignItems: "center",
+    borderColor: "#4287f5",
+    borderBottomWidth: 2,
   },
 
   buttonText: {
     color: "white",
     fontWeight: "700",
     fontSize: 16,
-  },
-
-  buttonOutline: {
-    backgroundColor: "#1f1f1f",
-    marginTop: 5,
-    borderColor: "white",
-    borderWidth: 1,
   },
 
   buttonOutlineText: {

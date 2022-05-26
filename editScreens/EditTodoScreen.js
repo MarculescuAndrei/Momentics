@@ -5,19 +5,12 @@ import {
   StyleSheet,
   TextInput,
 } from "react-native";
-
-import { Entypo } from "@expo/vector-icons";
 import { auth, db } from "../firebase";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
-import { addValidStylePropTypes } from "react-native/Libraries/StyleSheet/StyleSheetValidation";
-import {
-  NavigationContainer,
-  useNavigation,
-  useRoute,
-} from "@react-navigation/native";
-import { styleProps } from "react-native-web/dist/cjs/modules/forwardedProps";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 
 const EditToDo = () => {
   const navigation = useNavigation();
@@ -34,6 +27,7 @@ const EditToDo = () => {
   const [todoDueDate, setTodoDueDate] = useState(route.params.dueDate);
   const [todoImportance, setTodoImportance] = useState(route.params.importance);
 
+  // update functions
   const updateTask = (text) => {
     todo_obj.update({
       task: text,
@@ -82,16 +76,20 @@ const EditToDo = () => {
     setShowDate(true);
   };
 
-  //write
-
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["white", "#666666"]}
+        start={{ x: 0, y: -2 }}
+        style={styles.background}
+      />
       <View style={styles.inputContainer}>
         <TextInput
           value={todoTask}
           placeholder="Task"
           onChangeText={(text) => updateTask(text)}
-          style={styles.input}
+          style={styles.inputTitle}
         />
       </View>
 
@@ -102,10 +100,26 @@ const EditToDo = () => {
           selectedValue={todoImportance}
           onValueChange={(itemValue, itemIndex) => updateImportance(itemValue)}
         >
-          <Picker.Item value="" label="Choose  importance.." />
-          <Picker.Item label="Critical" value="Critical" />
-          <Picker.Item label="Important" value="Important" />
-          <Picker.Item label="Normal" value="Normal" />
+          <Picker.Item
+            value=""
+            label="Choose  importance.."
+            style={{ color: "gray", fontSize: 13 }}
+          />
+          <Picker.Item
+            label="Critical"
+            value="Critical"
+            style={{ color: "red" }}
+          />
+          <Picker.Item
+            label="Important"
+            value="Important"
+            style={{ color: "#b95eff" }}
+          />
+          <Picker.Item
+            label="Normal"
+            value="Normal"
+            style={{ color: "#fcb130" }}
+          />
         </Picker>
       </View>
 
@@ -130,7 +144,7 @@ const EditToDo = () => {
         />
       )}
 
-      <View style={styles.buttonContainer}>
+      <View style={{ marginTop: 30, flexDirection: "row" }}>
         <TouchableOpacity style={styles.button} onPress={showDatePicker}>
           <Text style={styles.buttonText}>
             {showDateText ? todoDueDate : "Choose a due date"}
@@ -163,13 +177,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#666666",
   },
 
-  date_input: {
-    alignItems: "center",
-    borderRadius: 10,
-    padding: 12,
-    width: "60%",
-    backgroundColor: "white",
-  },
   picker: {
     justifyContent: "center",
     height: 20,
@@ -181,25 +188,28 @@ const styles = StyleSheet.create({
     width: "80%",
     backgroundColor: "white",
     height: 50,
-    borderRadius: 10,
+    borderRadius: 6.5,
     margin: 15,
     borderBottomWidth: 4,
     borderBottomColor: "#121212",
     elevation: 4,
   },
 
-  buttonContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 100,
-    width: "95%",
+  background: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 600,
   },
 
   button: {
+    elevation: 4,
+    margin: 10,
     backgroundColor: "#1f1f1f",
-    width: "80%",
-    padding: 15,
-    borderRadius: 10,
+    width: 138,
+    padding: 12,
+    borderRadius: 6,
     alignItems: "center",
     marginBottom: 15,
     borderBottomWidth: 4,
@@ -209,11 +219,12 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontWeight: "700",
-    fontSize: 16,
+    fontSize: 14,
   },
 
   input: {
     elevation: 4,
+    width: "100%",
     backgroundColor: "white",
     paddingHorizontal: 15,
     padding: 10,
@@ -223,6 +234,16 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
     borderBottomWidth: 4,
     borderBottomColor: "#121212",
+  },
+
+  inputTitle: {
+    color: "black",
+    textAlignVertical: "top",
+    backgroundColor: "transparent",
+    fontSize: 24,
+    fontWeight: "bold",
+    paddingLeft: 5,
+    marginTop: 15,
   },
 
   inputContainer: {

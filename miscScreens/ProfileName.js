@@ -1,18 +1,6 @@
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  TextInput,
-  View,
-  SafeAreaView,
-  BackHandler,
-  ScrollView,
-} from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
 
 const WelcomeProfileName = () => {
   const [name, setName] = useState("");

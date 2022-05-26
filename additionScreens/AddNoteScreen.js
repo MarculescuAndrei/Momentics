@@ -2,24 +2,18 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  KeyboardAvoidingView,
   TextInput,
   View,
-  SafeAreaView,
-  BackHandler,
-  ScrollView,
-  FlatList,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { auth, db } from "../firebase";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import NoteComponent from "../components/NoteComponent";
+import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 
 const AddNoteScreen = () => {
   const [noteText, setNoteText] = useState("");
   const [noteTitle, setNoteTitle] = useState("");
   const navigation = useNavigation();
-  const [notes, setNotes] = useState([]);
 
   //write
   const writeToDb = () => {
@@ -45,11 +39,17 @@ const AddNoteScreen = () => {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["white", "#666666"]}
+        start={{ x: 0, y: -2 }}
+        style={styles.background}
+      />
       <View style={styles.inputContainer}>
         <TextInput
           placeholder="Title"
           onChangeText={(text) => setNoteTitle(text)}
-          style={styles.input}
+          style={styles.inputTitle}
         />
       </View>
 
@@ -64,7 +64,7 @@ const AddNoteScreen = () => {
       </View>
 
       <TouchableOpacity style={styles.button} onPress={writeToDb}>
-        <Text style={styles.buttonText}>Add this note</Text>
+        <Text style={styles.buttonText}>Add this Note</Text>
       </TouchableOpacity>
     </View>
   );
@@ -83,29 +83,39 @@ const styles = StyleSheet.create({
     backgroundColor: "#666666",
   },
 
-  note_item: {
-    padding: 15,
-    fontSize: 11,
-    marginTop: 12,
-    backgroundColor: "#E6E6E6",
-    borderRadius: 10,
+  background: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 600,
   },
 
   button: {
     backgroundColor: "#1f1f1f",
     width: "80%",
-    padding: 15,
-    borderRadius: 10,
+    padding: 12,
+    borderRadius: 6,
     alignItems: "center",
     margin: 20,
     borderBottomWidth: 4,
-    borderColor: "#4ddb73",
+    borderColor: "#e8b02e",
   },
 
   buttonText: {
     color: "white",
     fontWeight: "700",
     fontSize: 16,
+  },
+
+  inputTitle: {
+    color: "black",
+    textAlignVertical: "top",
+    backgroundColor: "transparent",
+    fontSize: 24,
+    fontWeight: "bold",
+    paddingLeft: 5,
+    marginTop: 15,
   },
 
   input: {

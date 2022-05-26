@@ -2,26 +2,22 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  KeyboardAvoidingView,
   TextInput,
   View,
-  SafeAreaView,
-  BackHandler,
-  ScrollView,
-  FlatList,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { auth, db } from "../firebase";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import NoteComponent from "../components/NoteComponent";
-import { MaterialIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import SelectBox from "react-native-multi-selectbox";
 import { xorBy } from "lodash";
+import { LinearGradient } from "expo-linear-gradient";
 
 const AddTask = () => {
   const [taskTitle, setTaskTitle] = useState("");
-  const [taskDays, setTaskDays] = useState([]);
   const [selectedDays, setSelectedDays] = useState([]);
+  const [allWeek, setAllWeek] = useState(false);
+  const [isOutdoors, setIsOutDoors] = useState(false);
+
   const days = [
     { item: "Monday", id: 1 },
     { item: "Tuesday", id: 2 },
@@ -57,9 +53,28 @@ const AddTask = () => {
       task: taskTitle,
       days: task_days,
       isDoneForToday: false,
+      isOutdoors: isOutdoors,
       time: now,
     });
     navigation.goBack();
+  };
+
+  const makeAllWeekTask = () => {
+    if (allWeek == true) {
+      setSelectedDays([]);
+      setAllWeek(false);
+    } else {
+      setAllWeek(true);
+      setSelectedDays(days);
+    }
+  };
+
+  const makeOutdoors = () => {
+    if (isOutdoors == true) {
+      setIsOutDoors(false);
+    } else {
+      setIsOutDoors(true);
+    }
   };
 
   function onMultiChange() {
@@ -68,11 +83,17 @@ const AddTask = () => {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["white", "#666666"]}
+        start={{ x: 0, y: -2 }}
+        style={styles.background}
+      />
       <View style={styles.inputContainer}>
         <TextInput
-          placeholder="Task"
+          placeholder="Task Title"
           onChangeText={(text) => setTaskTitle(text)}
-          style={styles.input}
+          style={styles.inputTitle}
         />
       </View>
 
@@ -91,6 +112,23 @@ const AddTask = () => {
           isMulti
         />
       </View>
+
+      <TouchableOpacity
+        style={[styles.button_week, allWeek ? styles.button_all_week : null]}
+        onPress={makeAllWeekTask}
+      >
+        <Text style={styles.buttonText}>All-Week</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[
+          styles.button_outdoor,
+          isOutdoors ? styles.button_is_outdoor : null,
+        ]}
+        onPress={makeOutdoors}
+      >
+        <Text style={styles.buttonText}>Outdoors Task</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={writeToDb}>
         <Text style={styles.buttonText}>Add this Task</Text>
@@ -112,12 +150,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#666666",
   },
 
-  note_item: {
-    padding: 15,
-    fontSize: 11,
-    marginTop: 12,
-    backgroundColor: "#E6E6E6",
-    borderRadius: 10,
+  background: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 600,
   },
 
   pickerview: {
@@ -133,13 +171,48 @@ const styles = StyleSheet.create({
 
   button: {
     backgroundColor: "#1f1f1f",
-    width: "80%",
-    padding: 15,
-    borderRadius: 10,
+    width: "79%",
+    padding: 12,
+    borderRadius: 6,
     alignItems: "center",
-    margin: 20,
+    margin: 5,
+    marginTop: 30,
     borderBottomWidth: 4,
     borderColor: "#4ddb73",
+  },
+
+  button_week: {
+    backgroundColor: "#1f1f1f",
+    width: "38%",
+    padding: 12,
+    margin: 5,
+    borderRadius: 6,
+    alignItems: "center",
+    borderBottomWidth: 4,
+    borderColor: "#4f81ff",
+  },
+
+  button_outdoor: {
+    backgroundColor: "#1f1f1f",
+    width: "38%",
+    padding: 12,
+    margin: 5,
+    borderRadius: 6,
+    alignItems: "center",
+    borderBottomWidth: 4,
+    borderColor: "#fc7f03",
+  },
+
+  button_is_outdoor: {
+    backgroundColor: "#fc7f03",
+    borderBottomWidth: 4,
+    borderColor: "#1f1f1f",
+  },
+
+  button_all_week: {
+    backgroundColor: "#4f81ff",
+    borderBottomWidth: 4,
+    borderColor: "#1f1f1f",
   },
 
   buttonText: {
@@ -148,17 +221,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
-  input: {
+  inputTitle: {
     color: "black",
     textAlignVertical: "top",
-    backgroundColor: "white",
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    borderRadius: 6.5,
-    marginTop: 5,
-    borderBottomWidth: 4,
-    borderBottomColor: "#121212",
-    elevation: 4,
+    backgroundColor: "transparent",
+    fontSize: 24,
+    fontWeight: "bold",
+    paddingLeft: 5,
+    marginTop: 15,
   },
 
   inputContainer: {

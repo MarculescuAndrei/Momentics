@@ -3,27 +3,10 @@ import React from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native"; //sometimes touch opac needs to be imported from react-native not gestures
 import { auth, db } from "../firebase";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import EditNote from "../editScreens/EditNoteScreen";
-import { useEffect } from "react/cjs/react.production.min";
+import { useNavigation } from "@react-navigation/native";
 
 const TaskComponent = ({ pushkey, task_title, days, time }) => {
   const navigation = useNavigation();
-  // const handleEditPress = () => {
-  //   navigation.navigate("EditTaskScreen", {
-  //     title: title,
-  //     note: note,
-  //     key: pushkey,
-  //   });
-  // };
-
-  function daysMaker(days) {
-    var days_string = "";
-    days.forEach((day) => {
-      days_string = days_string + " " + day;
-    });
-    return days_string;
-  }
 
   function heightMaker(days) {
     if (days.length > 4) {
@@ -44,15 +27,12 @@ const TaskComponent = ({ pushkey, task_title, days, time }) => {
       "Are your sure you want to delete this Task?",
       "It'll be gone forever..",
       [
-        // The "Yes" button
         {
           text: "Yes",
           onPress: () => {
             handleDelete();
           },
         },
-        // The "No" button
-        // Does nothing but dismiss the dialog when tapped
         {
           text: "No",
         },
@@ -75,15 +55,8 @@ const TaskComponent = ({ pushkey, task_title, days, time }) => {
       onPress={handleEdit}
     >
       <View style={styles.title}>
-        <Text style={styles.texttitle}>
-          {task_title}
-          {/* {task_title.length > 15 ? task_title.slice(0, 15) + ".." : task_title} */}
-        </Text>
+        <Text style={styles.texttitle}>{task_title}</Text>
       </View>
-
-      {/* <View style={styles.content}>
-        <Text style={styles.content_text}>{daysMaker(days)}</Text>
-      </View> */}
 
       <View style={styles.content}>
         <FlatList
@@ -138,7 +111,7 @@ const styles = StyleSheet.create({
 
   texttitle: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 16.5,
     fontWeight: "bold",
   },
 
@@ -147,19 +120,18 @@ const styles = StyleSheet.create({
     zIndex: 400,
     width: 40,
     height: 100,
-    top: 17,
-    left: 270,
+    top: 10,
+    left: 272.5,
   },
 
   container: {
     width: 300,
-    borderRadius: 6.7,
+    borderRadius: 6.5,
     margin: 10,
     padding: 20,
-
     backgroundColor: "#ededed",
     elevation: 4,
-    borderBottomWidth: 6,
+    borderBottomWidth: 4.5,
     borderColor: "#4f81ff",
   },
 });

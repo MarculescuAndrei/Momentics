@@ -3,10 +3,8 @@ import React, { useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { auth, db } from "../firebase";
-import { useEffect } from "react/cjs/react.production.min";
-import { set } from "react-native-reanimated";
 import { Feather } from "@expo/vector-icons";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 
 const ToDoComponent = ({
   pushkey,
@@ -19,7 +17,6 @@ const ToDoComponent = ({
 }) => {
   const [switchValue, setSwitchValue] = useState(isDone === "true");
   const uid = auth.currentUser.uid;
-
   const todo_obj = db.ref("users/" + uid + "/todos/" + pushkey);
   const navigation = useNavigation();
 
@@ -34,6 +31,29 @@ const ToDoComponent = ({
       todo_obj.update({
         isDone: "true",
       });
+    }
+  };
+
+  const recalculateDate = (dueDate) => {
+    var splitted_date = dueDate.split(" / ");
+    var today = new Date();
+    if (splitted_date[1].length < 2) {
+      var month = "0" + splitted_date[1];
+    } else {
+      var month = splitted_date[1];
+    }
+
+    if (splitted_date[0].length < 2) {
+      var day = "0" + splitted_date[0];
+    } else {
+      var day = splitted_date[0];
+    }
+    var date_info = splitted_date[2] + "-" + month + "-" + day;
+
+    if (new Date(date_info.toString()) > today) {
+      return false;
+    } else {
+      return true;
     }
   };
 
@@ -73,15 +93,12 @@ const ToDoComponent = ({
       "Are your sure you want to delete this To-Do?",
       "It'll be gone forever..",
       [
-        // The "Yes" button
         {
           text: "Yes",
           onPress: () => {
             handleDelete();
           },
         },
-        // The "No" button
-        // Does nothing but dismiss the dialog when tapped
         {
           text: "No",
         },
@@ -144,6 +161,12 @@ const ToDoComponent = ({
         <Text numberOfLines={4}>{details}</Text>
       </View>
 
+      <View style={styles.late_text}>
+        {recalculateDate(dueDate) ? (
+          <Text style={{ color: "orange" }}>Late</Text>
+        ) : null}
+      </View>
+
       <View style={styles.date}>
         <Text style={styles.textdate}>Due in {dueDate}</Text>
       </View>
@@ -195,6 +218,12 @@ const styles = StyleSheet.create({
   textdate: {
     color: "#5e5e5e",
     fontSize: 11,
+  },
+
+  late_text: {
+    position: "absolute",
+    top: 72,
+    left: 170,
   },
 
   tasktitle: {

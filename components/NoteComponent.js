@@ -3,9 +3,7 @@ import React from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { auth, db } from "../firebase";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import EditNote from "../editScreens/EditNoteScreen";
-import { useEffect } from "react/cjs/react.production.min";
+import { useNavigation } from "@react-navigation/native";
 const NoteComponent = ({ pushkey, time, note, title }) => {
   const navigation = useNavigation();
 
@@ -28,15 +26,12 @@ const NoteComponent = ({ pushkey, time, note, title }) => {
       "Are your sure you want to delete this Note?",
       "It'll be gone forever..",
       [
-        // The "Yes" button
         {
           text: "Yes",
           onPress: () => {
             handleDelete();
           },
         },
-        // The "No" button
-        // Does nothing but dismiss the dialog when tapped
         {
           text: "No",
         },

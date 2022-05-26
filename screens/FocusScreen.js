@@ -1,28 +1,10 @@
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  TextInput,
-  View,
-  SafeAreaView,
-  BackHandler,
-  ScrollView,
-  FlatList,
-  Button,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
-import {
-  NavigationContainer,
-  useNavigation,
-  useIsFocused,
-} from "@react-navigation/native";
-import NoteComponent from "../components/NoteComponent";
-import { Entypo } from "@expo/vector-icons";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
-import { set } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 const FocusScreen = () => {
   const navigation = useNavigation();
@@ -36,7 +18,7 @@ const FocusScreen = () => {
   const [key, setKey] = useState(0);
   const [workStatus, setWorkStatus] = useState(true);
 
-  // read
+  // read pomodoro parameters
   useEffect(() => {
     db.ref("users/" + auth.currentUser.uid + "/focus").once(
       "value",
@@ -53,7 +35,7 @@ const FocusScreen = () => {
         }
       }
     );
-    console.log(workTime);
+
     setDuration(workTime);
     setKey((prevKey) => prevKey + 1);
     setIsPlaying(false);
@@ -107,6 +89,12 @@ const FocusScreen = () => {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["#4ddb73", "#666666"]}
+        start={{ x: -1, y: -0.8 }}
+        style={styles.background}
+      />
       <View style={{ marginTop: 20 }}>
         <CountdownCircleTimer
           key={key}
@@ -155,7 +143,7 @@ const FocusScreen = () => {
       </View>
       <View style={styles.cycleswidget}>
         <Text style={{ color: "white" }}>
-          You've done <Text style={{ color: "#4ddb73" }}>{cycles}</Text>{" "}
+          You've done <Text style={{ color: "#4ddb73" }}>{cycles} </Text>
           Pomodoro Cycles
         </Text>
       </View>
@@ -174,6 +162,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     backgroundColor: "#666666",
+  },
+
+  background: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 300,
   },
 
   cycleswidget: {
@@ -219,23 +215,5 @@ const styles = StyleSheet.create({
     margin: 10,
     borderBottomWidth: 4,
     borderColor: "#4ddb73",
-  },
-
-  buttonText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-
-  input: {
-    backgroundColor: "white",
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 10,
-    marginTop: 5,
-  },
-
-  inputContainer: {
-    width: "80%",
   },
 });

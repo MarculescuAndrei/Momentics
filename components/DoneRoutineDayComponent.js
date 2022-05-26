@@ -1,20 +1,19 @@
-import { View, Text, StyleSheet, Alert } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import React from "react";
-import { MaterialIcons } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { auth, db } from "../firebase";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import EditNote from "../editScreens/EditNoteScreen";
-import { useEffect } from "react/cjs/react.production.min";
 
 const DoneRoutineDayComponent = ({ pushkey, day, tasks_done, month }) => {
-  const navigation = useNavigation();
-
   return (
     <View key={pushkey} style={styles.container}>
       <Text style={styles.done_tasks}>{tasks_done}</Text>
       <Text
-        style={{ color: "#d1d1d1", position: "absolute", top: 40, left: 12.5 }}
+        style={{
+          color: "#d1d1d1",
+          position: "absolute",
+          top: 50,
+          marginLeft: 12,
+          marginRight: 10,
+          fontSize: 11.5,
+        }}
       >
         {day} {month.toString().slice(0, 3)}
       </Text>

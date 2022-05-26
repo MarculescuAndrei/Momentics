@@ -2,37 +2,23 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  TextInput,
   View,
-  SafeAreaView,
-  BackHandler,
   ScrollView,
-  FlatList,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
-import {
-  NavigationContainer,
-  useNavigation,
-  useIsFocused,
-} from "@react-navigation/native";
-import NoteComponent from "../components/NoteComponent";
-import { Entypo } from "@expo/vector-icons";
-import ToDoComponent from "../components/ToDoComponent";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 import DayComponent from "../components/DayComponent";
-import { backgroundColor } from "react-native/Libraries/Components/View/ReactNativeStyleAttributes";
-import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 const RoutineScreen = () => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const [dataState, setDataState] = useState();
   const [tasks, setTasks] = useState([]);
-  // const [tasksTitles, setTasksTitles] = useState([]);
 
   //read tasks
   useEffect(() => {
@@ -42,9 +28,7 @@ const RoutineScreen = () => {
     all_tasks.on("value", (snapshot) => {
       if (snapshot.exists()) {
         const tasks_list = [];
-        // const tasks_titles = [];
         snapshot.forEach((task_obj) => {
-          // tasks_titles.push(task_obj.val().task);
           tasks_list.push({
             key: task_obj.key,
             task_title: task_obj.val().task,
@@ -55,7 +39,6 @@ const RoutineScreen = () => {
         });
         setDataState(true);
         setTasks(tasks_list);
-        // setTasksTitles(tasks_titles);
       } else {
         setDataState(false);
         console.log("Data Snapshot is null");
@@ -71,6 +54,7 @@ const RoutineScreen = () => {
     navigation.navigate("TasksScreen");
   };
 
+  // gets the tasks that have today's day name in the days array
   function getTasksForDay(day, tasks) {
     var day_tasks = [];
     tasks.forEach((task_obj) => {
@@ -87,11 +71,15 @@ const RoutineScreen = () => {
     navigation.navigate("DoneRoutineDaysScreen");
   };
 
-  // cum am aici view sub scrollview trb sa folosesc si in home
-
   return (
     <View style={styles.big_container}>
       <ScrollView contentContainerStyle={styles.container}>
+        <LinearGradient
+          // Background Linear Gradient
+          colors={["#4287f5", "#666666"]}
+          start={{ x: -1, y: -0.8 }}
+          style={styles.background}
+        />
         <View>
           {dataState ? (
             <View style={styles.routine_header}>
@@ -206,6 +194,14 @@ const styles = StyleSheet.create({
     borderColor: "#62de81",
   },
 
+  background: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 300,
+  },
+
   big_container: {
     flexGrow: 1,
     justifyContent: "center",
@@ -265,45 +261,5 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 15,
     zIndex: 300,
-  },
-
-  todotitleview: {
-    paddingBottom: 15,
-  },
-
-  todotitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "white",
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-  },
-
-  button: {
-    backgroundColor: "#03b1fc",
-    width: "60%",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    margin: 20,
-  },
-
-  buttonText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-
-  input: {
-    backgroundColor: "white",
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 10,
-    marginTop: 5,
-  },
-
-  inputContainer: {
-    width: "80%",
   },
 });

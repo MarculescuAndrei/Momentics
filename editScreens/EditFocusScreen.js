@@ -2,21 +2,13 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  KeyboardAvoidingView,
   TextInput,
   View,
-  SafeAreaView,
-  BackHandler,
-  ScrollView,
-  FlatList,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { auth, db } from "../firebase";
-import {
-  NavigationContainer,
-  useNavigation,
-  useRoute,
-} from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 
 const EditFocus = () => {
   const navigation = useNavigation();
@@ -26,6 +18,7 @@ const EditFocus = () => {
   const [workTime, setWorkTime] = useState(route.params.workTime);
   const [relaxTime, setRelaxTime] = useState(route.params.relaxTime);
 
+  // update functions
   const updateWork = (nr) => {
     setWorkTime(nr);
     if (!isNaN(parseInt(nr, 10))) {
@@ -46,6 +39,12 @@ const EditFocus = () => {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["white", "#666666"]}
+        start={{ x: 0, y: -2 }}
+        style={styles.background}
+      />
       <View style={styles.inputs}>
         <View style={styles.inputContainer}>
           <TextInput
@@ -102,6 +101,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     backgroundColor: "#666666",
+  },
+
+  background: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 600,
   },
 
   inputs: {

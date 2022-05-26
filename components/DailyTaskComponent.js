@@ -1,16 +1,25 @@
-import { View, Text, StyleSheet, Alert, FlatList, Switch } from "react-native";
+import { View, Text, StyleSheet, Switch } from "react-native";
 import React, { useState } from "react";
-import { MaterialIcons } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native"; //sometimes touch opac needs to be imported from react-native not gestures
 import { auth, db } from "../firebase";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import EditNote from "../editScreens/EditNoteScreen";
-import { useEffect } from "react/cjs/react.production.min";
 
-const DailyTaskComponent = ({ task_title, pushkey, isDoneForToday }) => {
-  const navigation = useNavigation();
-
+const DailyTaskComponent = ({
+  task_title,
+  pushkey,
+  isDoneForToday,
+  isOutdoors,
+  condition,
+}) => {
   const [switchValue, setSwitchValue] = useState(isDoneForToday === "true");
+  const conditions = [
+    "clear sky",
+    "broken clouds",
+    "shower rain",
+    "rain",
+    "thunderstorm",
+    "snow",
+    "mist",
+  ];
+
   const task_obj = db.ref(
     "users/" + auth.currentUser.uid + "/tasks/" + pushkey
   );
@@ -18,7 +27,6 @@ const DailyTaskComponent = ({ task_title, pushkey, isDoneForToday }) => {
   const toggleSwitch = () => {
     if (switchValue == true) {
       setSwitchValue(false);
-
       task_obj.update({
         isDoneForToday: false,
       });
@@ -42,12 +50,30 @@ const DailyTaskComponent = ({ task_title, pushkey, isDoneForToday }) => {
     }
   }
 
+  function getCondition(condition, isOutdoors) {
+    if (conditions.includes(condition) && isOutdoors) {
+      return { height: 64 };
+    } else {
+      return { height: 50 };
+    }
+  }
+
   return (
     <View key={pushkey}>
-      <View style={[styles.container, makeContainer()]}>
+      <View
+        style={[
+          styles.container,
+          makeContainer(),
+          getCondition(condition, isOutdoors),
+        ]}
+      >
         <View style={styles.title}>
           <Text style={styles.texttitle}>{task_title}</Text>
         </View>
+
+        {conditions.includes(condition) && isOutdoors ? (
+          <Text style={styles.weather_warning}>Weather Warning</Text>
+        ) : null}
 
         <Switch
           style={styles.switch}
@@ -70,32 +96,17 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
 
+  weather_warning: {
+    fontSize: 11.5,
+    top: 37,
+    left: 15.5,
+    color: "#fc7f03",
+    position: "absolute",
+  },
+
   switch: {
     position: "absolute",
     right: 10,
-  },
-
-  content: {
-    right: 4,
-    bottom: 40,
-    marginTop: 20,
-    alignItems: "flex-start",
-  },
-
-  content_text: {
-    fontSize: 12,
-    color: "#6b6b6b",
-  },
-
-  date: {
-    position: "absolute",
-    top: 120,
-    right: 10,
-  },
-
-  textdate: {
-    color: "#5e5e5e",
-    fontSize: 11,
   },
 
   texttitle: {
@@ -106,7 +117,7 @@ const styles = StyleSheet.create({
   },
 
   container: {
-    height: 50,
+    height: 58,
     width: 320,
     borderRadius: 6.7,
     margin: 10,

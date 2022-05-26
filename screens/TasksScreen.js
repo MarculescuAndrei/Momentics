@@ -2,26 +2,15 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  TextInput,
   View,
-  SafeAreaView,
-  BackHandler,
-  ScrollView,
   FlatList,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
-import {
-  NavigationContainer,
-  useNavigation,
-  useIsFocused,
-} from "@react-navigation/native";
-import NoteComponent from "../components/NoteComponent";
-import { Entypo } from "@expo/vector-icons";
-import { Feather } from "@expo/vector-icons";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import TaskComponent from "../components/TaskComponent";
+import { LinearGradient } from "expo-linear-gradient";
+
 const TasksScreen = () => {
   const [tasks, setTasks] = useState([]);
   const navigation = useNavigation();
@@ -32,7 +21,8 @@ const TasksScreen = () => {
     navigation.navigate("AddTaskScreen");
   };
 
-  //read
+  // read all individual tasks
+
   useEffect(() => {
     const uid = auth.currentUser.uid;
     var all_tasks = db.ref("users/" + uid + "/tasks");
@@ -60,6 +50,12 @@ const TasksScreen = () => {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["#4287f5", "#666666"]}
+        start={{ x: -1, y: -0.8 }}
+        style={styles.background}
+      />
       <View>
         {dataState && (
           <FlatList
@@ -102,11 +98,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#666666",
   },
 
+  background: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 300,
+  },
+
   button: {
     backgroundColor: "#1f1f1f",
     width: "95%",
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 6,
     alignItems: "center",
     margin: 10,
     borderBottomWidth: 3,
@@ -117,62 +121,5 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "700",
     fontSize: 16,
-  },
-
-  check_button: {
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.35)",
-    alignItems: "center",
-    justifyContent: "center",
-    width: 70,
-    position: "absolute",
-    bottom: 110,
-    right: 20,
-    height: 70,
-    backgroundColor: "white",
-    borderRadius: 20,
-    zIndex: 3,
-  },
-
-  plus_button: {
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.35)",
-    alignItems: "center",
-    justifyContent: "center",
-    width: 70,
-    position: "absolute",
-    bottom: 30,
-    right: 20,
-    height: 70,
-    backgroundColor: "white",
-    borderRadius: 20,
-    zIndex: 3,
-  },
-
-  todotitleview: {
-    paddingBottom: 15,
-  },
-
-  todotitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "white",
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-  },
-
-  input: {
-    backgroundColor: "white",
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 10,
-    marginTop: 5,
-  },
-
-  inputContainer: {
-    width: "80%",
   },
 });
